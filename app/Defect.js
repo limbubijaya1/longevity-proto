@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 
-const ConfirmationRecord = () => {
+const MyImageComponent = () => {
   const currentLanguage = useSelector((state) => state.language.language);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,45 +45,45 @@ const ConfirmationRecord = () => {
     }
   };
 
-  const fetchConfirmationRecord = async () => {
+  const fetchDefects = async () => {
     setLoading(true);
     try {
       const storedUserId = await AsyncStorage.getItem("user_id");
       setUserId(storedUserId);
       if (storedUserId) {
         const response = await axios.get(
-          `http://34.57.68.176:8000/confirmed-products/${cc_id.key}`
+          `http://34.57.68.176:8000/get-defect-from-category/${cc_id.key}`
         );
-        const productsWithImages = await Promise.all(
-          response.data.map(async (product) => {
-            try {
-              const imageResponse = await axios.get(
-                `http://34.57.68.176:8000/get-candidate-material-pic/${product.cm_id}`
-              );
-              const picUrl = imageResponse.data?.image_url
-                ? `http://34.57.68.176:8000/candidate-material-pic${imageResponse.data.image_url}`
-                : null;
-              return { ...product, picUrl };
-            } catch (imageError) {
-              console.error(
-                `Error fetching image for cm_id ${product.cm_id}:`,
-                imageError
-              );
-              return { ...product, picUrl: null };
+        console.log(response.data);
+        const defectsWithImage = await Promise.all(
+          response.data.defects.map(async (defect) => {
+            let beforePic = null;
+            let afterPic = null;
+
+            // Fetch the image URL for each product using cm_id
+            if (defect.pic_bef_repair_document) {
+              beforePic = `http://34.57.68.176:8000/defect-before-repair/${defect.pic_bef_repair_document.pic_bef_repair_id}.${defect.pic_bef_repair_document.extension}`;
             }
+
+            if (defect.pic_af_repair_document) {
+              afterPic = `http://34.57.68.176:8000/defect-after-repair/${defect.pic_af_repair_document.pic_af_repair_id}.${defect.pic_af_repair_document.extension}`;
+            }
+
+            return { ...defect, beforePic, afterPic };
           })
         );
-        setProducts(productsWithImages);
+        setProducts(defectsWithImage);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      console.error("Error fetching defects:", error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
   useEffect(() => {
-    fetchConfirmationRecord();
+    setProducts([]);
+    fetchDefects(); // Fetch products on component mount
   }, [cc_id]);
 
   const openUploadModal = (status, cr_id) => {
@@ -102,6 +102,30 @@ const ConfirmationRecord = () => {
     setImagesLoading(false);
   };
 
+  const fetchUploadedImage = async (status, cr_id) => {
+    try {
+      const link =
+        status === "order" ? "get-ordered-pic-ids" : "get-delivered-pic-ids";
+      const response = await axios.get(
+        `http://34.57.68.176:8000/${link}/${cr_id}`
+      );
+      const imageUrls =
+        response.data.pic_details?.map(
+          (detail) =>
+            `http://34.57.68.176:8000/${
+              status === "order"
+                ? "ordered-status-proof"
+                : "delivered-status-proof"
+            }${detail.image_url}`
+        ) || []; // Default to empty array if null
+      return imageUrls.filter((url) => url !== null);
+    } catch (error) {
+      console.error("Error fetching uploaded images:", error);
+      Alert.alert(currentWord.error, currentWord.imageLoadError);
+      return []; // Return an empty array on error
+    }
+  };
+
   const handleImageUpload = async () => {
     await requestPermissions();
 
@@ -112,14 +136,10 @@ const ConfirmationRecord = () => {
           setImageUris([]);
           const result = await ImagePicker.launchCameraAsync({
             mediaTypes: "images",
-            allowsMultipleSelection: true,
             quality: 1,
           });
-
           if (!result.cancelled) {
-            setImageUris((prev) => [...prev, result.assets[0].uri]); // Append new image
-          } else {
-            console.log("User canceled camera");
+            setImageUris((prev) => [...prev, result.uri]);
           }
         },
       },
@@ -129,58 +149,19 @@ const ConfirmationRecord = () => {
           setImageUris([]);
           const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: "images",
-            allowsMultipleSelection: true, // Enable multiple selection
+            allowsMultipleSelection: true,
             quality: 1,
           });
-
           if (!result.cancelled) {
-            result.assets.forEach((asset) => {
-              setImageUris((prev) => [...prev, asset.uri]); // Append new images
-            });
-          } else {
-            console.log("User canceled image picker");
+            setImageUris((prev) => [
+              ...prev,
+              ...result.assets.map((asset) => asset.uri),
+            ]);
           }
         },
       },
-      {
-        text: currentWord.cancel,
-        style: "cancel",
-      },
+      { text: currentWord.cancel, style: "cancel" },
     ]);
-  };
-
-  const fetchUploadedImage = async (status, cr_id) => {
-    try {
-      const link =
-        status === "order" ? "get-ordered-pic-ids" : "get-delivered-pic-ids";
-      const response = await axios.get(
-        `http://34.57.68.176:8000/${link}/${cr_id}`
-      );
-
-      const imageUrls = await Promise.all(
-        response.data.pic_details.map(async (detail) => {
-          try {
-            const imageUrl = `http://34.57.68.176:8000/${
-              status === "order"
-                ? "ordered-status-proof"
-                : "delivered-status-proof"
-            }${detail.image_url}`;
-            return imageUrl;
-          } catch (error) {
-            console.error("Error fetching image URL:", error);
-            return null; // Return null if there's an error fetching the image URL
-          }
-        })
-      );
-      return imageUrls.filter((url) => url !== null);
-    } catch (error) {
-      console.error("Error getting uploaded status image:", error);
-      Alert.alert(
-        currentWord.error,
-        currentWord.imageLoadError // Use translated text
-      );
-      return []; // Return an empty array on error
-    }
   };
 
   const confirmUpload = async () => {
@@ -191,16 +172,17 @@ const ConfirmationRecord = () => {
 
     const formData = new FormData();
     imageUris.forEach((uri) => {
-      const imageData = {
-        uri,
-        type: "image/jpeg",
-        name: uri.split("/").pop(),
-      };
       formData.append(
         selectedStatus === "order" ? "ordered_pics" : "delivered_pics",
-        imageData
+        {
+          uri,
+          type: "image/jpeg",
+          name: uri.split("/").pop(),
+        }
       );
     });
+
+    console.log("FormData being sent:", formData); // Log for debugging
 
     try {
       const query =
@@ -214,29 +196,39 @@ const ConfirmationRecord = () => {
         `http://34.57.68.176:8000/${link}/${cr_id}?${query}=${user_id}`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       if (response.status === 200) {
-        Alert.alert(currentWord.success, currentWord.imageUploaded); // Multilingual alert
+        Alert.alert(currentWord.success, currentWord.imageUploaded);
         setIsUploadModalVisible(false);
-        setImageUris([]); // Clear the images after upload
+        setImageUris([]); // Clear images after upload
         fetchConfirmationRecord();
       } else {
-        Alert.alert(currentWord.error, currentWord.uploadFailed); // Multilingual alert
+        Alert.alert(currentWord.error, currentWord.uploadFailed);
       }
     } catch (error) {
       console.error("Error updating order status:", error);
-      Alert.alert(
-        currentWord.error,
-        currentWord.uploadFailed // Multilingual alert
-      );
+      if (error.response) {
+        // Request was made and server responded with a status code
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        Alert.alert(
+          currentWord.error,
+          `Upload failed: ${error.response.status} ${error.response.data}`
+        );
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error("Request data:", error.request);
+        Alert.alert(currentWord.error, "No response received from server.");
+      } else {
+        // Something happened in setting up the request
+        console.error("Error message:", error.message);
+        Alert.alert(currentWord.error, error.message);
+      }
     }
   };
-
   const cancelUpload = () => {
     setIsUploadModalVisible(false);
     setImageUris([]); // Clear images on cancel
@@ -261,28 +253,19 @@ const ConfirmationRecord = () => {
                   <Text style={styles.headerText}>
                     {currentWord.productStatus}
                   </Text>
-                  <Text style={styles.headerText}>{currentWord.photo}</Text>
-                  <Text style={styles.headerText}>
-                    {currentWord.productDescription}
+                  <Text style={styles.headerText} numberOfLines={2}>
+                    {currentWord.beforePic}
                   </Text>
-                  <Text style={styles.headerText}>{currentWord.quantity}</Text>
-                  <Text style={styles.headerText}>
-                    {currentWord.orderStatus}
+                  <Text style={styles.headerText} numberOfLines={2}>
+                    {currentWord.afterPic}
                   </Text>
-                  <Text style={styles.headerText}>
-                    {currentWord.deliveryStatus}
+                  <Text style={styles.headerText} numberOfLines={2}>
+                    {currentWord.defectDescription}
                   </Text>
                 </View>
-                <View
-                  style={
-                    currentLanguage === "zh"
-                      ? styles.chinSubHeader
-                      : styles.enSubHeader
-                  }
-                ></View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   {products.map((product) => (
-                    <View style={styles.itemContainer} key={product.cr_id}>
+                    <View style={styles.itemContainer} key={product.defect_id}>
                       <View style={styles.areaContainer}>
                         {product.product_status ? (
                           <Ionicons name="square" color="green" size={20} />
@@ -290,54 +273,34 @@ const ConfirmationRecord = () => {
                           <Ionicons name="triangle" color="red" size={20} />
                         )}
                       </View>
-                      <View style={styles.imageContainer}>
-                        <Image
-                          source={{ uri: product.picUrl }}
-                          style={styles.productImage}
-                        />
+                      <View style={styles.areaContainer}>
+                        {product.beforePic ? (
+                          <Image
+                            source={{ uri: product.beforePic || null }}
+                            style={styles.productImage}
+                          />
+                        ) : (
+                          <View style={styles.noImage}>
+                            <Text tyle={styles.productStatus}>+</Text>
+                          </View>
+                        )}
                       </View>
-                      <View style={styles.productDescriptionContainer}>
-                        <Text style={styles.productCode}>
-                          {product.product_no}
-                        </Text>
-                        <Text style={styles.productDescription}>
-                          {product.spec}
-                        </Text>
+                      <View style={styles.areaContainer}>
+                        {product.afterPic ? (
+                          <Image
+                            source={{ uri: product.afterPic || null }}
+                            style={styles.productImage}
+                          />
+                        ) : (
+                          <View style={styles.noImage}>
+                            <Text tyle={styles.productStatus}>+</Text>
+                          </View>
+                        )}
                       </View>
-                      <View style={styles.priceContainer}>
+                      <View style={styles.areaContainer}>
                         <Text style={styles.productStatus}>
-                          {product.quantity}
+                          {product.defect_description}
                         </Text>
-                      </View>
-                      <View style={styles.specContainer}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            !product.order_status
-                              ? openUploadModal("order", product.cr_id)
-                              : openDisplayModal("order", product.cr_id)
-                          }
-                        >
-                          {product.order_status ? (
-                            <Ionicons name="square" color="green" size={20} />
-                          ) : (
-                            <Ionicons name="triangle" color="red" size={20} />
-                          )}
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            !product.delivery_status
-                              ? openUploadModal("delivery", product.cr_id)
-                              : openDisplayModal("delivery", product.cr_id)
-                          }
-                        >
-                          {product.delivery_status ? (
-                            <Ionicons name="square" color="green" size={20} />
-                          ) : (
-                            <Ionicons name="triangle" color="red" size={20} />
-                          )}
-                        </TouchableOpacity>
                       </View>
                     </View>
                   ))}
@@ -412,7 +375,7 @@ const ConfirmationRecord = () => {
       </Modal>
 
       {/* Display Modal */}
-      {imagesLoading ? ( // Show loading indicator
+      {imagesLoading ? (
         <ActivityIndicator
           size="large"
           color="orange"
@@ -485,81 +448,71 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     width: "100%",
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 5, // Match itemContainer padding
+    borderBottomWidth: 1,
+    borderColor: "#eed774",
+    paddingHorizontal: 20,
+    width: "100%",
+  },
+  headerText: {
+    fontWeight: "bold",
+    fontSize: 15,
+    flex: 1,
+    width: 120,
+    textAlign: "center",
+  },
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10, // Match header padding
+    borderBottomWidth: 1,
+    borderBottomColor: "#eed774",
+    paddingHorizontal: 20,
+    width: "100%", // Ensure width matches
+  },
+  areaContainer: {
+    flex: 1, // Adjusted for better alignment
+    alignItems: "center",
+    width: 120,
+  },
+  productImage: {
+    width: 80,
+    height: 80,
+    resizeMode: "cover",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noImage: {
+    width: 80,
+    height: 80,
+    resizeMode: "cover",
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  productStatus: {
+    fontSize: 12,
+    color: "gray",
+    textAlign: "center",
+  },
   noRecordsText: {
     textAlign: "center",
     fontSize: 16,
     color: "gray",
     padding: 20,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingBottom: 5,
-    borderBottomWidth: 1,
-    alignItems: "center",
-    borderColor: "#eed774",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-  },
+
   chinSubHeader: {
     marginBottom: 25,
   },
   enSubHeader: {
     marginBottom: 50,
-  },
-  headerText: {
-    fontWeight: "bold",
-    fontSize: 15,
-    flex: 1,
-    textAlign: "center",
-    minWidth: 100,
-  },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eed774",
-    minWidth: 600,
-  },
-  areaContainer: {
-    flex: 1,
-    alignItems: "center",
-    width: 100,
-  },
-  imageContainer: {
-    flex: 1,
-    alignItems: "center",
-    width: 100,
-  },
-  productDescriptionContainer: {
-    flex: 1,
-    alignItems: "center",
-    width: 100,
-  },
-  priceContainer: {
-    flex: 1,
-    alignItems: "center",
-    width: 100,
-  },
-  specContainer: {
-    flex: 1,
-    alignItems: "center",
-    width: 100,
-  },
-  quantityContainer: {
-    flex: 1,
-    alignItems: "center",
-    width: 100,
-  },
-  productImage: {
-    width: 60,
-    height: 60,
-    resizeMode: "cover",
-    borderRadius: 12,
   },
   productCode: {
     fontSize: 12,
@@ -570,10 +523,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "gray",
     textAlign: "center",
-  },
-  productStatus: {
-    fontSize: 12,
-    color: "gray",
   },
   modalContainer: {
     flex: 1,
@@ -650,16 +599,16 @@ const styles = StyleSheet.create({
   },
 });
 
-// Language translations with English and Chinese
 const words = {
   english: {
-    none: "There are no Confirmation Records available.",
+    none: "There are no Variable Orders available.",
     productStatus: "Product Status",
-    photo: "Photo",
+    beforePic: "Before Picture",
+    afterPic: "After Picture",
     productDescription: "Product Description",
     orderStatus: "Order Status",
     deliveryStatus: "Delivery Status",
-    quantity: "Quantity",
+    defectDescription: "Defect Description",
     uploadImageFor: "Upload Image for ",
     uploadedImageFor: "Uploaded Image for ",
     selectPhoto: "Select a photo from the library or take a new photo",
@@ -682,13 +631,14 @@ const words = {
     imageLoadError: "An error occurred while loading images.", // New error message
   },
   chinese: {
-    none: "冇任何確認記錄.",
+    none: "冇可用嘅可變訂單.",
     productStatus: "產品狀態",
-    photo: "相片",
+    beforePic: "喺圖片之前",
+    afterPic: "圖片之後",
     productDescription: "產品描述",
     orderStatus: "訂單狀態",
     deliveryStatus: "送貨狀態",
-    quantity: "數量",
+    defectDescription: "缺陷描述",
     uploadImageFor: "上傳圖片以便",
     uploadedImageFor: "上載咗嘅圖片",
     selectPhoto: "選擇照片或拍攝新照片",
@@ -710,4 +660,4 @@ const words = {
   },
 };
 
-export default ConfirmationRecord;
+export default MyImageComponent;

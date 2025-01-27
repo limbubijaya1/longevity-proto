@@ -57,7 +57,10 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center", // Align items vertically centered
-    paddingHorizontal: 40, // Add padding to prevent icons from touching screen edges
+    paddingHorizontal: 10, // Add padding to prevent icons from touching screen edges
+    width: "100%",
+    borderWidth: 0,
+    marginBottom: 5,
   },
   arrowButton: {
     paddingHorizontal: 2, // Add padding for better touch area

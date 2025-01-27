@@ -19,16 +19,18 @@ export default function ProjectCategory() {
   const dispatch = useDispatch();
   const router = useRouter();
   const activeProject = useSelector((state) => state.project.project);
+  const currentLanguage = useSelector((state) => state.language.language); // Get current language
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [ccName, setCcName] = useState("");
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
 
   useEffect(() => {
     if (activeProject) {
       fetchProjectCategory();
     }
-  }, [activeProject]);
+  }, [activeProject, currentLanguage]);
 
   const fetchProjectCategory = async () => {
     setLoading(true);
@@ -110,15 +112,23 @@ export default function ProjectCategory() {
         contentContainerStyle={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.grid}>
+        <View style={styles.verticalGrid}>
           {categories.map((category) => (
             <TouchableOpacity
               key={category.key}
-              style={styles.gridItem}
+              style={
+                currentLanguage === "zh"
+                  ? styles.gridItem
+                  : styles.horizontalBar
+              }
               onPress={() => handleItemPress(category.key, category.label)}
             >
               <Text
-                style={styles.gridItemText}
+                style={
+                  currentLanguage === "zh"
+                    ? styles.gridItemText
+                    : styles.horizontalItemText
+                }
                 adjustsFontSizeToFit={true}
                 numberOfLines={2}
               >
@@ -126,7 +136,12 @@ export default function ProjectCategory() {
               </Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.gridItem} onPress={handleAddPress}>
+          <TouchableOpacity
+            style={
+              currentLanguage === "zh" ? styles.gridItem : styles.horizontalBar
+            }
+            onPress={handleAddPress}
+          >
             <Text style={styles.gridItemText}>+</Text>
           </TouchableOpacity>
         </View>
@@ -140,10 +155,10 @@ export default function ProjectCategory() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Category</Text>
+            <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter category name"
+              placeholder={currentWord.modalPlaceholder}
               value={ccName}
               onChangeText={setCcName}
             />
@@ -152,13 +167,15 @@ export default function ProjectCategory() {
                 style={[styles.confirmButton, !ccName && styles.disabledButton]} // Disable button if ccName is empty
                 onPress={ccName ? handleConfirm : null} // Prevent onPress if ccName is empty
               >
-                <Text style={styles.buttonText}>Confirm</Text>
+                <Text style={styles.buttonText}>
+                  {currentWord.modalConfirm}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={handleCancel}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={styles.buttonText}>{currentWord.modalCancel}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -180,17 +197,29 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
-    justifyContent: "flex-start",
+    justifyContent: "flex-start", // Center content vertically
+    alignItems: "center", // Center content horizontally
     width: "100%",
   },
-  grid: {
+  horizontalBar: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "white",
+    paddingVertical: 30,
+    marginBottom: 10,
+    borderRadius: 30,
+    width: 320,
+  },
+  horizontalItemText: {
+    fontSize: 15,
+  },
+  verticalGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
+    justifyContent: "center", // Center items in horizontal grid
+    alignItems: "center", // Center items in horizontal grid
     paddingBottom: 15,
     paddingHorizontal: 15,
-
-    // minWidth: 354,
   },
   gridItem: {
     backgroundColor: "#ffffff",
@@ -211,7 +240,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     width: "80%",
@@ -246,7 +275,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   disabledButton: {
-    backgroundColor: "lightgray", // Change color to indicate disabled state
+    backgroundColor: "lightgray",
   },
   cancelButton: {
     backgroundColor: "gray",
@@ -260,3 +289,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+const words = {
+  english: {
+    modalTitle: "Add Category",
+    modalPlaceholder: "Enter category name",
+    modalConfirm: "Confirm",
+    modalCancel: "Cancel",
+  },
+  chinese: {
+    modalTitle: "新增類別",
+    modalPlaceholder: "輸入類別名稱",
+    modalConfirm: "確認",
+    modalCancel: "取消",
+  },
+};

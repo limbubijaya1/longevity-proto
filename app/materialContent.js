@@ -15,14 +15,72 @@ import { setActiveSubTab } from "../features/tabs/tabsSlice";
 const MaterialContent = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const currentLanguage = useSelector((state) => state.language.language);
+
+  const words = {
+    english: {
+      candidateMaterials: "Candidate Materials",
+      confirmationRecord: "Confirmation Record",
+      variableOrder: "Variable Order",
+      milestone: "Milestone",
+      defects: "Defects",
+      contact: "Contacts",
+    },
+    chinese: {
+      candidateMaterials: "候选材料",
+      confirmationRecord: "确认记录",
+      variableOrder: "可变订单",
+      milestone: "里程碑",
+      defects: "缺陷",
+      contact: "聯絡人",
+    },
+  };
 
   const items = [
-    { label: "Candidate Materials", key: "candidate_materials" },
-    { label: "Confirmation Record", key: "confirmation_record" },
-    { label: "Variable Order", key: "variable_order" },
-    { label: "Milestone", key: "milestone" },
-    { label: "Details", key: "details" },
+    {
+      label:
+        currentLanguage === "zh"
+          ? words.chinese.candidateMaterials
+          : words.english.candidateMaterials,
+      key: "candidate_materials",
+    },
+    {
+      label:
+        currentLanguage === "zh"
+          ? words.chinese.confirmationRecord
+          : words.english.confirmationRecord,
+      key: "confirmation_record",
+    },
+    {
+      label:
+        currentLanguage === "zh"
+          ? words.chinese.variableOrder
+          : words.english.variableOrder,
+      key: "variable_order",
+    },
+    {
+      label:
+        currentLanguage === "zh"
+          ? words.chinese.milestone
+          : words.english.milestone,
+      key: "milestone",
+    },
+    {
+      label:
+        currentLanguage === "zh"
+          ? words.chinese.defects
+          : words.english.defects,
+      key: "defects",
+    },
+    {
+      label:
+        currentLanguage === "zh"
+          ? words.chinese.contact
+          : words.english.contact,
+      key: "contact",
+    },
   ];
+
   const navigateTo = (key) => {
     dispatch(setActiveSubTab(key));
     router.push("/materialSubPage");

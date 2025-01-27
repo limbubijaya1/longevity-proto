@@ -5,7 +5,7 @@ import CandidateMaterials from "./CandidateMaterials.js"; // Import your screen 
 import ConfirmationRecord from "./ConfirmationRecord";
 import VariableOrder from "./VariableOrder";
 import Milestone from "./Milestone.js";
-// import Details from "./Details";
+import Defects from "./Defect.js";
 
 export default function MaterialSubTabScreen() {
   const subTab = useSelector((state) => state.tabs.subTab);
@@ -16,12 +16,12 @@ export default function MaterialSubTabScreen() {
         return <CandidateMaterials />;
       case "confirmation_record":
         return <ConfirmationRecord />;
-        case "variable_order":
-          return <VariableOrder />;
+      case "variable_order":
+        return <VariableOrder />;
       case "milestone":
         return <Milestone />;
-      //   case "details":
-      //     return <Details />;
+      case "defects":
+        return <Defects />;
       default:
         return;
     }

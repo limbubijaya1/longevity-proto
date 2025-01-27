@@ -17,12 +17,15 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 const ProductList = () => {
+  const currentLanguage = useSelector((state) => state.language.language);
   const [selectedProducts, setSelectedProducts] = useState({});
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Option 1");
   const cc_id = useSelector((state) => state.tabs.activeTab);
+
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
 
   useEffect(() => {
     fetchCandidateMaterials(); // Fetch products on component mount
@@ -86,10 +89,7 @@ const ProductList = () => {
     if (selected.length > 0 && allQuantitiesValid) {
       setIsModalVisible(true);
     } else {
-      Alert.alert(
-        "Invalid Selection",
-        "Please select at least one product with a quantity."
-      );
+      Alert.alert(currentWord.errorNoSelect, currentWord.errorNoSelect1);
     }
   };
 
@@ -119,9 +119,9 @@ const ProductList = () => {
           requestBody
         );
         if (response.status === 200) {
-          Alert.alert("Success", "Products selected successfully!");
+          Alert.alert(currentWord.success, currentWord.success1);
         } else {
-          Alert.alert("Error", "Failed to select products.");
+          Alert.alert(currentWord.fail, currentWord.fail1);
         }
       } catch (error) {
         console.error("Error selecting products:", error);
@@ -130,20 +130,9 @@ const ProductList = () => {
         setIsModalVisible(false);
       }
     } else {
-      Alert.alert(
-        "No Products Selected",
-        "Please select at least one product with a quantity."
-      );
+      Alert.alert(currentWord.errorNoSelect, currentWord.errorNoSelect2);
     }
   };
-
-  // if (loading) {
-  //   return (
-  //     <View style={styles.loadingContainer}>
-  //       <ActivityIndicator size="large" color="orange" />
-  //     </View>
-  //   );
-  // }
 
   return (
     <View style={styles.mainContainer}>
@@ -163,7 +152,7 @@ const ProductList = () => {
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Select an Order Option</Text>
+                <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
                 <View>
                   <Pressable onPress={() => setSelectedOption("Option 1")}>
                     <Text
@@ -173,7 +162,7 @@ const ProductList = () => {
                           : styles.option
                       }
                     >
-                      Confirmation Order
+                      {currentWord.modalOption1}
                     </Text>
                   </Pressable>
                   <Pressable onPress={() => setSelectedOption("Option 2")}>
@@ -184,7 +173,7 @@ const ProductList = () => {
                           : styles.option
                       }
                     >
-                      Variable Order
+                      {currentWord.modalOption2}
                     </Text>
                   </Pressable>
                 </View>
@@ -193,28 +182,32 @@ const ProductList = () => {
                     style={styles.confirmButton}
                     onPress={handleConfirm}
                   >
-                    <Text style={styles.confirmButtonText}>Confirm</Text>
+                    <Text style={styles.confirmButtonText}>
+                      {currentWord.confirm}
+                    </Text>
                   </Pressable>
                   <Pressable
                     style={styles.cancelButton}
                     onPress={() => setIsModalVisible(false)}
                   >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                    <Text style={styles.cancelButtonText}>
+                      {currentWord.cancel}
+                    </Text>
                   </Pressable>
                 </View>
               </View>
             </View>
           </Modal>
 
-          <ScrollView horizontal>
+          <ScrollView horizontal style={styles.scrollView}>
             <View>
               <View style={styles.header}>
-                <Text style={styles.headerText}>Area</Text>
-                <Text style={styles.headerText}>Photo</Text>
-                <Text style={styles.headerText}>Product No</Text>
-                <Text style={styles.headerText}>Price</Text>
-                <Text style={styles.headerText}>Spec.(mm)</Text>
-                <Text style={styles.headerText}>Quantity</Text>
+                <Text style={styles.headerText}>{currentWord.area}</Text>
+                <Text style={styles.headerText}>{currentWord.photo}</Text>
+                <Text style={styles.headerText}>{currentWord.productNo}</Text>
+                <Text style={styles.headerText}>{currentWord.price}</Text>
+                <Text style={styles.headerText}>{currentWord.spec}</Text>
+                <Text style={styles.headerText}>{currentWord.quantity}</Text>
               </View>
               <View style={styles.subHeader}></View>
               <ScrollView showsVerticalScrollIndicator={false}>
@@ -277,7 +270,9 @@ const ProductList = () => {
 
           <View style={styles.confirmButtonContainer}>
             <TouchableOpacity style={styles.confirmButton} onPress={showModal}>
-              <Text style={styles.confirmButtonText}>Confirm</Text>
+              <Text style={styles.confirmButtonText}>
+                {currentWord.confirm}
+              </Text>
             </TouchableOpacity>
           </View>
         </>
@@ -294,11 +289,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   mainContainer: {
-    padding: 10,
     paddingBottom: 0,
-    backgroundColor: "#fff",
-    borderRadius: 20,
     width: "100%",
+  },
+  scrollView: {
+    borderRadius: 20,
+    padding: 10,
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
@@ -480,4 +477,44 @@ const styles = StyleSheet.create({
   },
 });
 
+const words = {
+  english: {
+    area: "Area",
+    photo: "Photo",
+    productNo: "Product No",
+    price: "Price",
+    spec: "Spec.(mm)",
+    quantity: "Quantity",
+    confirm: "Confirm",
+    modalTitle: "Select an Order Option",
+    modalOption1: "Confirmation Order",
+    modalOption2: "Variable Order",
+    cancel: "Cancel",
+    errorNoSelect: "Invalid Selection",
+    errorNoSelect1: "Please select at least one product with a quantity.",
+    success: "Success",
+    success1: "Products selected successfully!",
+    fail: "Error",
+    fail1: "Failed to select products.",
+  },
+  chinese: {
+    area: "區域",
+    photo: "相片",
+    productNo: "產品編號",
+    price: "價錢",
+    spec: "規格(mm)",
+    quantity: "數量",
+    confirm: "確認",
+    modalTitle: "選擇訂單選項",
+    modalOption1: "確認訂單",
+    modalOption2: "可變順序",
+    cancel: "取消",
+    errorNoSelect: "無效嘅選擇",
+    errorNoSelect1: "請選擇至少一個有數量嘅產品.",
+    success: "成功",
+    success1: "成功揀選產品!",
+    fail: "錯誤",
+    fail1: "未能選擇產品.",
+  },
+};
 export default ProductList;

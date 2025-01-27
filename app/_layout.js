@@ -34,9 +34,10 @@ function UserLoader({ setIsAuthenticated }) {
         if (decodedToken.exp > currentTime) {
           const fullName = await AsyncStorage.getItem("full_name");
           const userId = await AsyncStorage.getItem("user_id");
+          const companyId = await AsyncStorage.getItem("company_id");
 
-          if (fullName && userId) {
-            dispatch(setUser({ fullName, userId }));
+          if (fullName && userId && companyId) {
+            dispatch(setUser({ fullName, userId, companyId }));
             setIsAuthenticated(true); // User is authenticated
           } else {
             try {
@@ -48,11 +49,18 @@ function UserLoader({ setIsAuthenticated }) {
                   },
                 }
               );
-              const { full_name, user_id } = userResponse.data;
-              dispatch(setUser({ fullName: full_name, userId: user_id }));
+              const { full_name, user_id, company_id } = userResponse.data;
+              dispatch(
+                setUser({
+                  fullName: full_name,
+                  userId: user_id,
+                  companyId: company_id,
+                })
+              );
 
               await AsyncStorage.setItem("full_name", full_name);
               await AsyncStorage.setItem("user_id", user_id);
+              await AsyncStorage.setItem("company_id", company_id);
               setIsAuthenticated(true); // User is authenticated
             } catch (err) {
               console.error("Error fetching user data:", err);

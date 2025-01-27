@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 
 export default function Milestone() {
+  const currentLanguage = useSelector((state) => state.language.language);
   const [modalVisible, setModalVisible] = useState(false);
   const [taskDescription, setTaskDescription] = useState("");
   const [startDate, setStartDate] = useState(new Date()); // Set initial date to current date
@@ -26,6 +27,7 @@ export default function Milestone() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const activeTab = useSelector((state) => state.tabs.activeTab);
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
 
   useEffect(() => {
     if (activeTab) {
@@ -115,12 +117,10 @@ export default function Milestone() {
         />
       ) : (
         <>
-          <Text style={styles.title}>Milestone</Text>
+          <Text style={styles.title}>{currentWord.title}</Text>
           <ScrollView>
             {tasks.length === 0 ? (
-              <Text style={styles.noTasksText}>
-                There are no tasks available.
-              </Text>
+              <Text style={styles.noTasksText}>{currentWord.none} </Text>
             ) : (
               tasks.map((item, index) => (
                 <View key={item.tb_id} style={styles.taskContainer}>
@@ -149,7 +149,7 @@ export default function Milestone() {
               style={styles.addButton}
               onPress={() => setModalVisible(true)}
             >
-              <Text style={styles.addButtonText}>Add Task</Text>
+              <Text style={styles.addButtonText}>{currentWord.addTask}</Text>
             </TouchableOpacity>
           </View>
 
@@ -161,18 +161,20 @@ export default function Milestone() {
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Add Task</Text>
+                <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
 
-                <Text style={styles.inputLabel}>Task Description:</Text>
+                <Text style={styles.inputLabel}>
+                  {currentWord.taskDescription}
+                </Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Task Description"
+                  placeholder={currentWord.placeholder}
                   value={taskDescription}
                   onChangeText={setTaskDescription}
                 />
 
                 {/* Start Date */}
-                <Text style={styles.inputLabel}>Start Date:</Text>
+                <Text style={styles.inputLabel}>{currentWord.startDate}</Text>
                 <TouchableOpacity
                   onPress={() => setShowStartPicker(true)}
                   style={styles.dateContainer}
@@ -181,7 +183,7 @@ export default function Milestone() {
                 </TouchableOpacity>
 
                 {/* End Date */}
-                <Text style={styles.inputLabel}>End Date:</Text>
+                <Text style={styles.inputLabel}>{currentWord.endDate}</Text>
                 <TouchableOpacity
                   onPress={() => setShowEndPicker(true)}
                   style={styles.dateContainer}
@@ -198,7 +200,9 @@ export default function Milestone() {
                 >
                   <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>Select Start Date</Text>
+                      <Text style={styles.modalTitle}>
+                        {currentWord.datePickerTitle}
+                      </Text>
                       <DateTimePicker
                         mode="single"
                         date={startDate}
@@ -216,7 +220,9 @@ export default function Milestone() {
                         style={styles.cancelButton}
                         onPress={() => setShowStartPicker(false)}
                       >
-                        <Text style={styles.addButtonText}>Cancel</Text>
+                        <Text style={styles.addButtonText}>
+                          {currentWord.cancel}
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -231,7 +237,7 @@ export default function Milestone() {
                 >
                   <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>Select End Date</Text>
+                      <Text style={styles.modalTitle}>{currentWord.placeholder}</Text>
                       <DateTimePicker
                         mode="single"
                         date={endDate}
@@ -255,7 +261,9 @@ export default function Milestone() {
                         style={styles.cancelButton}
                         onPress={() => setShowEndPicker(false)}
                       >
-                        <Text style={styles.addButtonText}>Cancel</Text>
+                        <Text style={styles.addButtonText}>
+                          {currentWord.cancel}
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -266,13 +274,17 @@ export default function Milestone() {
                     style={styles.confirmButton}
                     onPress={handleAddTask}
                   >
-                    <Text style={styles.addButtonText}>Confirm</Text>
+                    <Text style={styles.addButtonText}>
+                      {currentWord.confirm}
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.cancelButton}
                     onPress={resetFields}
                   >
-                    <Text style={styles.addButtonText}>Cancel</Text>
+                    <Text style={styles.addButtonText}>
+                      {currentWord.cancel}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -419,3 +431,38 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
+const words = {
+  english: {
+    datePickerTitle: "Select Start Date",
+    datePickerTitle1: "Select End Date",
+    placeholder: "Task Description",
+    title: "Milestone",
+    none: "There are no tasks available.",
+    addTask: "Add Task",
+    confirm: "Confirm",
+    modalTitle: "Add Task",
+    taskDescription: "Task Description:",
+    cancel: "Cancel",
+    errorNoSelect: "Invalid Selection",
+    errorNoSelect2: "Please select at least one product with a quantity.",
+    startDate: "Start Date:",
+    endDate: "End Date:",
+  },
+  chinese: {
+    datePickerTitle: "揀開始日期",
+    datePickerTitle1: "選擇結束日期",
+    placeholder: "任務描述",
+    title: "里程碑",
+    none: "冇任何任務可用.",
+    addTask: "新增任務",
+    confirm: "確認",
+    modalTitle: "新增任務",
+    taskDescription: "任務描述:",
+    cancel: "取消",
+    errorNoSelect: "無效嘅選擇",
+    errorNoSelect2: "請選擇至少一個有數量嘅產品.",
+    startDate: "開始日期：",
+    endDate: "結束日期：",
+  },
+};

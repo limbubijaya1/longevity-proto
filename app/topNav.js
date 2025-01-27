@@ -8,15 +8,23 @@ import {
   Touchable,
   TouchableOpacity,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "expo-router";
+import { setLanguage } from "../features/language/languageSlice";
 
 export default function TopNav() {
   const fullName = useSelector((state) => state.user.fullName);
+  const currentLanguage = useSelector((state) => state.language.language);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const signin = () => {
     router.push("/signin");
+  };
+
+  const toggleLanguage = () => {
+    const newLanguage = currentLanguage === "en" ? "zh" : "en";
+    dispatch(setLanguage(newLanguage)); // Dispatch action to set new language
   };
   return (
     <View style={styles.navBar}>
@@ -29,7 +37,9 @@ export default function TopNav() {
       </View>
       <View style={styles.rightIcons}>
         <FontAwesome5 name="bell" size={22} style={{ paddingRight: 15 }} />
-        <Ionicons name="settings-sharp" size={22} />
+        <TouchableOpacity onPress={toggleLanguage}>
+          <Ionicons name="settings-sharp" size={22} />
+        </TouchableOpacity>
       </View>
     </View>
   );

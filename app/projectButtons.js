@@ -1,8 +1,12 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { useSelector, useDispatch } from "react-redux";
 
 export default function ProjectButton() {
+  const currentLanguage = useSelector((state) => state.language.language);
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
+
   const router = useRouter();
 
   const progressButton = () => {
@@ -12,10 +16,10 @@ export default function ProjectButton() {
   return (
     <View style={styles.mainContainer}>
       <TouchableOpacity style={styles.buttonContainer}>
-        <Text style={styles.buttonText}>Blueprint</Text>
+        <Text style={styles.buttonText}>{currentWord.blueprint}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.buttonContainer} onPress={progressButton}>
-        <Text style={styles.buttonText}>Progress</Text>
+        <Text style={styles.buttonText}>{currentWord.progress}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -45,3 +49,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+const words = {
+  english: {
+    blueprint: "Blueprint",
+    progress: "Progress",
+  },
+  chinese: {
+    blueprint: "藍圖",
+    progress: "進度",
+  },
+};

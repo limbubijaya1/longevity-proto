@@ -5,15 +5,18 @@ const userSlice = createSlice({
   initialState: {
     fullName: "",
     userId: "",
+    companyId: "",
   },
   reducers: {
     setUser(state, action) {
       state.fullName = action.payload.fullName;
       state.userId = action.payload.userId;
+      state.companyId = action.payload.companyId;
     },
     clearUser(state) {
       state.fullName = "";
       state.userId = "";
+      state.companyId = "";
     },
   },
 });

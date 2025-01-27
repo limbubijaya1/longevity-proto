@@ -17,11 +17,13 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 
 export default function Progress() {
+  const currentLanguage = useSelector((state) => state.language.language);
   const [categories, setCategories] = useState([]); // State to hold category progress
   const [project, setProject] = useState({}); // State to hold project data
   const ActiveProject = useSelector((state) => state.project.project);
   const [loading, setLoading] = useState(true); // Loading state
   const [modalVisible, setModalVisible] = useState(false);
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
   const router = useRouter();
 
   useEffect(() => {
@@ -102,10 +104,10 @@ export default function Progress() {
                 <FontAwesome name="arrow-left" size={20} color="orange" />
               </TouchableOpacity>
               <View style={styles.progressTextContainer}>
-                <Text style={styles.progressText}>Progress</Text>
+                <Text style={styles.progressText}>{currentWord.progress}</Text>
               </View>
               <Text style={styles.projectDuration}>
-                {project.duration} Days
+                {project.duration} {currentWord.days}
               </Text>
             </View>
             <View style={styles.rightTopContainer}>
@@ -122,9 +124,7 @@ export default function Progress() {
 
           <ScrollView>
             {categories.length === 0 ? (
-              <Text style={styles.noTasksText}>
-                There are no categories available.
-              </Text>
+              <Text style={styles.noTasksText}>{currentWord.none} </Text>
             ) : (
               categories.map((category) => (
                 <View key={category.cc_id} style={styles.categoryContainer}>
@@ -153,32 +153,34 @@ export default function Progress() {
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Color Information</Text>
+                <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
                 <View style={styles.modalTextContainer}>
                   <View style={styles.colorBlockYellow} />
                   <Text style={styles.modalText}>
-                    Yellow: Whole Project Progress
+                    {currentWord.modalYellow}
                   </Text>
                 </View>
                 <View style={styles.modalTextContainer}>
                   <View style={styles.colorBlockGreen} />
-                  <Text style={styles.modalText}>Green: Completed</Text>
+                  <Text style={styles.modalText}>{currentWord.modalGreen}</Text>
                 </View>
                 <View style={styles.modalTextContainer}>
                   <View style={styles.colorBlockOrange} />
                   <Text style={styles.modalText}>
-                    Orange: Risky/Uncompleted
+                    {currentWord.modalOrange}{" "}
                   </Text>
                 </View>
                 <View style={styles.modalTextContainer}>
                   <View style={styles.colorBlockGray} />
-                  <Text style={styles.modalText}>Gray: Upcoming</Text>
+                  <Text style={styles.modalText}>{currentWord.modalGray}</Text>
                 </View>
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={toggleModal}
                 >
-                  <Text style={styles.closeButtonText}>Close</Text>
+                  <Text style={styles.closeButtonText}>
+                    {currentWord.modalClose}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -273,6 +275,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     borderWidth: 0,
+    width: "95%",
   },
   topContainer: {
     flexDirection: "row",
@@ -362,7 +365,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#e0e0e0",
     position: "relative",
-    width: 320,
+    width: "100%",
   },
   progressBar: {
     height: "100%",
@@ -432,3 +435,28 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+const words = {
+  english: {
+    none: "There are no categories available.",
+    days: "Days",
+    progress: "Progress",
+    modalTitle: "Color Information",
+    modalYellow: "Yellow: Whole Project Progress",
+    modalGreen: "Green: Completed",
+    modalOrange: "Orange: Risky/Uncompleted",
+    modalGray: "Gray: Upcoming",
+    modalClose: "Close",
+  },
+  chinese: {
+    none: "冇任何類別可用",
+    days: "日",
+    progress: "進步",
+    modalTitle: "顏色資訊",
+    modalYellow: "黃色: 整個項目進度",
+    modalGreen: "綠色: 已完成",
+    modalOrange: "橙色: 有風險 / 未完成",
+    modalGray: "灰色: 即將來臨",
+    modalClose: "關閉",
+  },
+};
