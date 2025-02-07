@@ -111,6 +111,7 @@ export default function RootLayout() {
         {isAuthenticated ? (
           <>
             <Stack.Screen name="index" />
+            <Stack.Screen name="blueprintPage" />
             <Stack.Screen name="quotation" />
             <Stack.Screen name="invoice" />
             <Stack.Screen name="materialPage" />

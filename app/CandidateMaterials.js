@@ -15,12 +15,13 @@ import {
 } from "react-native";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import words from "../constants/words";
 
 const ProductList = () => {
   const currentLanguage = useSelector((state) => state.language.language);
   const [selectedProducts, setSelectedProducts] = useState({});
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Option 1");
   const cc_id = useSelector((state) => state.tabs.activeTab);
@@ -119,9 +120,9 @@ const ProductList = () => {
           requestBody
         );
         if (response.status === 200) {
-          Alert.alert(currentWord.success, currentWord.success1);
+          Alert.alert(currentWord.success, currentWord.successCandidate);
         } else {
-          Alert.alert(currentWord.fail, currentWord.fail1);
+          Alert.alert(currentWord.error, currentWord.errorCandidate);
         }
       } catch (error) {
         console.error("Error selecting products:", error);
@@ -199,81 +200,89 @@ const ProductList = () => {
             </View>
           </Modal>
 
-          <ScrollView horizontal style={styles.scrollView}>
-            <View>
-              <View style={styles.header}>
-                <Text style={styles.headerText}>{currentWord.area}</Text>
-                <Text style={styles.headerText}>{currentWord.photo}</Text>
-                <Text style={styles.headerText}>{currentWord.productNo}</Text>
-                <Text style={styles.headerText}>{currentWord.price}</Text>
-                <Text style={styles.headerText}>{currentWord.spec}</Text>
-                <Text style={styles.headerText}>{currentWord.quantity}</Text>
+          <View style={styles.scrollView}>
+            <ScrollView horizontal>
+              <View>
+                <View style={styles.header}>
+                  <Text style={styles.headerText}>{currentWord.area}</Text>
+                  <Text style={styles.headerText}>{currentWord.photo}</Text>
+                  <Text style={styles.headerText}>{currentWord.productNo}</Text>
+                  <Text style={styles.headerText}>{currentWord.price}</Text>
+                  <Text style={styles.headerText}>{currentWord.spec}</Text>
+                  <Text style={styles.headerText}>{currentWord.quantity}</Text>
+                </View>
+                <View style={styles.subHeader}></View>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {products.map((product) => (
+                    <View style={styles.itemContainer} key={product.cm_id}>
+                      <View style={styles.selectContainer}>
+                        <TouchableOpacity
+                          style={[
+                            styles.checkbox,
+                            selectedProducts[product.cm_id] &&
+                              styles.checkboxChecked,
+                          ]}
+                          onPress={() => toggleCheckbox(product.cm_id)}
+                        />
+                      </View>
+                      <View style={styles.areaContainer}>
+                        <Text style={styles.productStatus}>{product.area}</Text>
+                      </View>
+                      <View style={styles.imageContainer}>
+                        <Image
+                          source={{
+                            uri: product.picUrl,
+                          }}
+                          style={styles.productImage}
+                        />
+                      </View>
+                      <View style={styles.productDescriptionContainer}>
+                        <Text style={styles.productCode}>
+                          {product.product_no}
+                        </Text>
+                      </View>
+                      <View style={styles.priceContainer}>
+                        <Text style={styles.productStatus}>
+                          {product.price}
+                        </Text>
+                      </View>
+                      <View style={styles.specContainer}>
+                        <Text style={styles.productDescription}>
+                          {product.spec}
+                        </Text>
+                      </View>
+                      <View style={styles.quantityContainer}>
+                        <TextInput
+                          style={styles.quantityInput}
+                          keyboardType="numeric"
+                          value={
+                            selectedProducts[product.cm_id] !== undefined
+                              ? selectedProducts[product.cm_id].toString()
+                              : ""
+                          }
+                          onChangeText={(value) =>
+                            handleQuantityChange(product.cm_id, value)
+                          }
+                          placeholder="0"
+                          placeholderTextColor="gray"
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
               </View>
-              <View style={styles.subHeader}></View>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {products.map((product) => (
-                  <View style={styles.itemContainer} key={product.cm_id}>
-                    <View style={styles.selectContainer}>
-                      <TouchableOpacity
-                        style={[
-                          styles.checkbox,
-                          selectedProducts[product.cm_id] &&
-                            styles.checkboxChecked,
-                        ]}
-                        onPress={() => toggleCheckbox(product.cm_id)}
-                      />
-                    </View>
-                    <View style={styles.areaContainer}>
-                      <Text style={styles.productStatus}>{product.area}</Text>
-                    </View>
-                    <View style={styles.imageContainer}>
-                      <Image
-                        source={{
-                          uri: product.picUrl,
-                        }}
-                        style={styles.productImage}
-                      />
-                    </View>
-                    <View style={styles.productDescriptionContainer}>
-                      <Text style={styles.productCode}>
-                        {product.product_no}
-                      </Text>
-                    </View>
-                    <View style={styles.priceContainer}>
-                      <Text style={styles.productStatus}>{product.price}</Text>
-                    </View>
-                    <View style={styles.specContainer}>
-                      <Text style={styles.productDescription}>
-                        {product.spec}
-                      </Text>
-                    </View>
-                    <View style={styles.quantityContainer}>
-                      <TextInput
-                        style={styles.quantityInput}
-                        keyboardType="numeric"
-                        value={
-                          selectedProducts[product.cm_id] !== undefined
-                            ? selectedProducts[product.cm_id].toString()
-                            : ""
-                        }
-                        onChangeText={(value) =>
-                          handleQuantityChange(product.cm_id, value)
-                        }
-                        placeholder="0"
-                      />
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-          </ScrollView>
+            </ScrollView>
 
-          <View style={styles.confirmButtonContainer}>
-            <TouchableOpacity style={styles.confirmButton} onPress={showModal}>
-              <Text style={styles.confirmButtonText}>
-                {currentWord.confirm}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.confirmButtonContainer}>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={showModal}
+              >
+                <Text style={styles.confirmButtonText}>
+                  {currentWord.confirm}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </>
       )}
@@ -291,6 +300,8 @@ const styles = StyleSheet.create({
   mainContainer: {
     paddingBottom: 0,
     width: "100%",
+    height: "100%",
+    borderWidth: 0,
   },
   scrollView: {
     borderRadius: 20,
@@ -410,7 +421,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopWidth: 0,
     borderColor: "orange",
-    marginTop: 0,
+    marginTop: 10,
     padding: 5,
   },
   confirmButton: {
@@ -477,44 +488,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const words = {
-  english: {
-    area: "Area",
-    photo: "Photo",
-    productNo: "Product No",
-    price: "Price",
-    spec: "Spec.(mm)",
-    quantity: "Quantity",
-    confirm: "Confirm",
-    modalTitle: "Select an Order Option",
-    modalOption1: "Confirmation Order",
-    modalOption2: "Variable Order",
-    cancel: "Cancel",
-    errorNoSelect: "Invalid Selection",
-    errorNoSelect1: "Please select at least one product with a quantity.",
-    success: "Success",
-    success1: "Products selected successfully!",
-    fail: "Error",
-    fail1: "Failed to select products.",
-  },
-  chinese: {
-    area: "區域",
-    photo: "相片",
-    productNo: "產品編號",
-    price: "價錢",
-    spec: "規格(mm)",
-    quantity: "數量",
-    confirm: "確認",
-    modalTitle: "選擇訂單選項",
-    modalOption1: "確認訂單",
-    modalOption2: "可變順序",
-    cancel: "取消",
-    errorNoSelect: "無效嘅選擇",
-    errorNoSelect1: "請選擇至少一個有數量嘅產品.",
-    success: "成功",
-    success1: "成功揀選產品!",
-    fail: "錯誤",
-    fail1: "未能選擇產品.",
-  },
-};
 export default ProductList;

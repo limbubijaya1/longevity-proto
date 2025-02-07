@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center", // Align items vertically centered
     paddingHorizontal: 40, // Add padding to prevent icons from touching screen edges
+    height: 42,
   },
   tabContainer: {
     flexDirection: "row",

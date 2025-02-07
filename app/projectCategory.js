@@ -14,6 +14,7 @@ import {
   TextInput,
 } from "react-native";
 import { setActiveTab, setAvailableTabs } from "../features/tabs/tabsSlice";
+import words from "../constants/words";
 
 export default function ProjectCategory() {
   const dispatch = useDispatch();
@@ -155,10 +156,12 @@ export default function ProjectCategory() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
+            <Text style={styles.modalTitle}>
+              {currentWord.modalTitleCategory}
+            </Text>
             <TextInput
               style={styles.input}
-              placeholder={currentWord.modalPlaceholder}
+              placeholder={currentWord.modalPlaceholderCategory}
               value={ccName}
               onChangeText={setCcName}
             />
@@ -168,14 +171,14 @@ export default function ProjectCategory() {
                 onPress={ccName ? handleConfirm : null} // Prevent onPress if ccName is empty
               >
                 <Text style={styles.buttonText}>
-                  {currentWord.modalConfirm}
+                  {currentWord.confirm}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={handleCancel}
               >
-                <Text style={styles.buttonText}>{currentWord.modalCancel}</Text>
+                <Text style={styles.buttonText}>{currentWord.cancel}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -289,18 +292,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-const words = {
-  english: {
-    modalTitle: "Add Category",
-    modalPlaceholder: "Enter category name",
-    modalConfirm: "Confirm",
-    modalCancel: "Cancel",
-  },
-  chinese: {
-    modalTitle: "新增類別",
-    modalPlaceholder: "輸入類別名稱",
-    modalConfirm: "確認",
-    modalCancel: "取消",
-  },
-};

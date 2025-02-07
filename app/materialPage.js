@@ -20,16 +20,20 @@ export default function MaterialPage() {
             <ProjectInformation />
             <ProjectButton />
           </View>
-          <View>
+          <View style={styles.tabContainer}>
             <MaterialTab />
           </View>
           <View style={styles.materialContainer}>
             <MaterialContent />
-            <MaterialBackButton />
+            <View style={styles.lowerContainer}>
+              <View style={styles.lowerBtnContainer}>
+                <View style={styles.addDefectContainer}></View>
+                <View style={styles.backbtnContainer}>
+                  <MaterialBackButton />
+                </View>
+              </View>
+            </View>
           </View>
-        </View>
-        <View style={styles.lowerContainer}>
-          {/* <LowerNav /> */}
         </View>
       </View>
     </SafeAreaView>
@@ -43,6 +47,7 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
+    justifyContent: "flex-start",
   },
   topContainer: {
     marginTop: 40,
@@ -56,9 +61,6 @@ const styles = StyleSheet.create({
   informationContainer: {
     width: "95%",
     position: "relative",
-  },
-  lowerContainer: {
-    justifyContent: "flex-end",
   },
   scrollView: {
     flexGrow: 1,
@@ -89,9 +91,31 @@ const styles = StyleSheet.create({
     color: "black",
     textAlign: "center",
   },
+  lowerContainer: {
+    position: "absolute", // Use absolute positioning
+    top: 400, // Position from the bottom
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   materialContainer: {
     alignItems: "center",
     width: "100%",
-    paddingBottom: 30,
+    height: "55%",
   },
+  lowerBtnContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 5,
+    width: "90%",
+    justifyContent: "center",
+  },
+  backbtnContainer: {
+    alignContent: "flex-end",
+  },
+  addDefectContainer: {
+    alignItems: "flex-start",
+    flex: 1,
+  },
+
 });

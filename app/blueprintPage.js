@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import TopNav from "./topNav";
 import { View, StyleSheet, SafeAreaView } from "react-native";
 import ProjectInformation from "./projectInformation";
-import ProjectButton from "./projectButtons";
-import ProjectCategory from "./projectCategory";
-import Progress from "./progress";
+import Blueprint from "./Blueprint";
 
 export default function ProjectPage() {
   return (
@@ -19,7 +17,7 @@ export default function ProjectPage() {
               <ProjectInformation />
             </View>
           </View>
-          <Progress />
+          <Blueprint />
         </View>
         <View style={styles.lowerContainer}>{/* <LowerNav /> */}</View>
       </View>

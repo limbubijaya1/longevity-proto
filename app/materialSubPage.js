@@ -8,8 +8,11 @@ import MaterialSubTab from "./materialSubTab";
 import MaterialTab from "./materialTab";
 import MaterialSubTabScreen from "./materialSubTabScreen";
 import MaterialBackButton from "./materialBackButton";
+import { useSelector } from "react-redux";
 
 export default function MaterialSubPage() {
+  const subTab = useSelector((state) => state.tabs.subTab);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.mainContainer}>
@@ -21,18 +24,22 @@ export default function MaterialSubPage() {
             <ProjectInformation />
             <ProjectButton />
           </View>
-          <View>
+          <View style={styles.tabContainer}>
             <MaterialTab />
             <MaterialSubTab />
           </View>
           <View style={styles.materialContainer}>
             <MaterialSubTabScreen />
-            <MaterialBackButton />
+            <View style={styles.lowerContainer}>
+              <View style={styles.lowerBtnContainer}>
+                <View style={styles.backbtnContainer}>
+                  <MaterialBackButton />
+                </View>
+              </View>
+            </View>
           </View>
         </View>
-        <View style={styles.lowerContainer}>
-          {/* <LowerNav /> */}
-        </View>
+        <View style={styles.lowerContainer}>{/* <LowerNav /> */}</View>
       </View>
     </SafeAreaView>
   );
@@ -45,13 +52,12 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   topContainer: {
     marginTop: 40,
   },
   content: {
-    flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
     position: "relative",
@@ -59,11 +65,6 @@ const styles = StyleSheet.create({
   informationContainer: {
     width: "95%",
     position: "relative",
-  },
-  lowerContainer: {
-    marginTop: 10,
-    flex: 0,
-    justifyContent: "center",
   },
   scrollView: {
     flexGrow: 1,
@@ -94,9 +95,24 @@ const styles = StyleSheet.create({
     color: "black",
     textAlign: "center",
   },
+  lowerContainer: {
+    position: "absolute", // Use absolute positioning
+    top: 355,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   materialContainer: {
     alignItems: "center",
     width: "100%",
-    paddingBottom: 30,
+    paddingBottom: 0,
+    height: "55%",
+  },
+  lowerBtnContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 5,
+    width: "90%",
+    justifyContent: "flex-end",
   },
 });

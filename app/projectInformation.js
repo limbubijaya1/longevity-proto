@@ -3,12 +3,12 @@ import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useSelector } from "react-redux";
 import { useRouter } from "expo-router";
+import words from "../constants/words";
 
 export default function ProjectInformation() {
   const currentLanguage = useSelector((state) => state.language.language);
   const project = useSelector((state) => state.project.project);
   const router = useRouter();
-
   const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
 
   const handleBackButtonPress = async () => {
@@ -40,7 +40,7 @@ export default function ProjectInformation() {
       <View style={styles.container}>
         <View style={styles.subContainer}>
           <View style={styles.detailsContainer}>
-            <Text style={styles.title}>{currentWord.projectDeatils}</Text>
+            <Text style={styles.title}>{currentWord.projectDetails}</Text>
           </View>
           <View>
             <Text style={styles.title}>
@@ -141,22 +141,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-const words = {
-  english: {
-    ownerName: "Owner Name:",
-    days: "Days",
-    projectDeatils: "Project Details",
-    tel: "Tel:",
-    startDate: "Start Date:",
-    endDate: "End Date:",
-  },
-  chinese: {
-    ownerName: "擁有者名稱:",
-    days: "日",
-    projectDeatils: "項目詳情",
-    tel: "電話:",
-    startDate: "開始日期:",
-    endDate: "結束日期:",
-  },
-};

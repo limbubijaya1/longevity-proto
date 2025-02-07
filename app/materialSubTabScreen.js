@@ -6,6 +6,7 @@ import ConfirmationRecord from "./ConfirmationRecord";
 import VariableOrder from "./VariableOrder";
 import Milestone from "./Milestone.js";
 import Defects from "./Defect.js";
+import Contact from "./Contact.js";
 
 export default function MaterialSubTabScreen() {
   const subTab = useSelector((state) => state.tabs.subTab);
@@ -22,6 +23,8 @@ export default function MaterialSubTabScreen() {
         return <Milestone />;
       case "defects":
         return <Defects />;
+      case "contact":
+        return <Contact />;
       default:
         return;
     }
@@ -35,6 +38,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 10,
-    height: "64%",
+    height: 350,
   },
 });

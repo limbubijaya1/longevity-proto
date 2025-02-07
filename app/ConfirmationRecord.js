@@ -16,34 +16,22 @@ import {
 import { useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
+import words from "../constants/words";
+import UploadImageModal from "./UploadImageModal";
 
 const ConfirmationRecord = () => {
   const currentLanguage = useSelector((state) => state.language.language);
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isUploadModalVisible, setIsUploadModalVisible] = useState(false);
   const [isDisplayModalVisible, setIsDisplayModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
-  const [imageUris, setImageUris] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [imagesLoading, setImagesLoading] = useState(false); // New loading state for images
   const cc_id = useSelector((state) => state.tabs.activeTab);
   const [cr_id, setCrId] = useState("");
   const [user_id, setUserId] = useState("");
   const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
-
-  const requestPermissions = async () => {
-    const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
-    if (cameraPermission.status !== "granted") {
-      Alert.alert(currentWord.error, currentWord.cameraPermissionError); // Multilingual alert
-    }
-
-    const mediaLibraryPermission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (mediaLibraryPermission.status !== "granted") {
-      Alert.alert(currentWord.error, currentWord.mediaLibraryPermissionError); // Multilingual alert
-    }
-  };
 
   const fetchConfirmationRecord = async () => {
     setLoading(true);
@@ -86,12 +74,6 @@ const ConfirmationRecord = () => {
     fetchConfirmationRecord();
   }, [cc_id]);
 
-  const openUploadModal = (status, cr_id) => {
-    setCrId(cr_id);
-    setSelectedStatus(status);
-    setIsUploadModalVisible(true);
-  };
-
   const openDisplayModal = async (status, cr_id) => {
     setCrId(cr_id);
     setSelectedStatus(status);
@@ -100,53 +82,6 @@ const ConfirmationRecord = () => {
     setUploadedImages(images); // Set the uploaded images in state
     setIsDisplayModalVisible(true);
     setImagesLoading(false);
-  };
-
-  const handleImageUpload = async () => {
-    await requestPermissions();
-
-    Alert.alert(currentWord.chooseOption, currentWord.selectPhoto, [
-      {
-        text: currentWord.camera,
-        onPress: async () => {
-          setImageUris([]);
-          const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: "images",
-            allowsMultipleSelection: true,
-            quality: 1,
-          });
-
-          if (!result.cancelled) {
-            setImageUris((prev) => [...prev, result.assets[0].uri]); // Append new image
-          } else {
-            console.log("User canceled camera");
-          }
-        },
-      },
-      {
-        text: currentWord.library,
-        onPress: async () => {
-          setImageUris([]);
-          const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: "images",
-            allowsMultipleSelection: true, // Enable multiple selection
-            quality: 1,
-          });
-
-          if (!result.cancelled) {
-            result.assets.forEach((asset) => {
-              setImageUris((prev) => [...prev, asset.uri]); // Append new images
-            });
-          } else {
-            console.log("User canceled image picker");
-          }
-        },
-      },
-      {
-        text: currentWord.cancel,
-        style: "cancel",
-      },
-    ]);
   };
 
   const fetchUploadedImage = async (status, cr_id) => {
@@ -183,64 +118,6 @@ const ConfirmationRecord = () => {
     }
   };
 
-  const confirmUpload = async () => {
-    if (imageUris.length === 0) {
-      Alert.alert(currentWord.error, currentWord.noImageSelected);
-      return;
-    }
-
-    const formData = new FormData();
-    imageUris.forEach((uri) => {
-      const imageData = {
-        uri,
-        type: "image/jpeg",
-        name: uri.split("/").pop(),
-      };
-      formData.append(
-        selectedStatus === "order" ? "ordered_pics" : "delivered_pics",
-        imageData
-      );
-    });
-
-    try {
-      const query =
-        selectedStatus === "order" ? "ordered_user_id" : "delivered_user_id";
-      const link =
-        selectedStatus === "order"
-          ? "update-order-status"
-          : "update-delivery-status";
-
-      const response = await axios.patch(
-        `http://34.57.68.176:8000/${link}/${cr_id}?${query}=${user_id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        Alert.alert(currentWord.success, currentWord.imageUploaded); // Multilingual alert
-        setIsUploadModalVisible(false);
-        setImageUris([]); // Clear the images after upload
-        fetchConfirmationRecord();
-      } else {
-        Alert.alert(currentWord.error, currentWord.uploadFailed); // Multilingual alert
-      }
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      Alert.alert(
-        currentWord.error,
-        currentWord.uploadFailed // Multilingual alert
-      );
-    }
-  };
-
-  const cancelUpload = () => {
-    setIsUploadModalVisible(false);
-    setImageUris([]); // Clear images on cancel
-  };
 
   return (
     <View style={styles.mainContainer}>
@@ -313,7 +190,11 @@ const ConfirmationRecord = () => {
                         <TouchableOpacity
                           onPress={() =>
                             !product.order_status
-                              ? openUploadModal("order", product.cr_id)
+                              ? setIsUploadModalVisible(
+                                  true,
+                                  setSelectedStatus("order"),
+                                  setCrId(product.cr_id)
+                                )
                               : openDisplayModal("order", product.cr_id)
                           }
                         >
@@ -328,7 +209,11 @@ const ConfirmationRecord = () => {
                         <TouchableOpacity
                           onPress={() =>
                             !product.delivery_status
-                              ? openUploadModal("delivery", product.cr_id)
+                              ? setIsUploadModalVisible(
+                                  true,
+                                  setSelectedStatus("delivery"),
+                                  setCrId(product.cr_id)
+                                )
                               : openDisplayModal("delivery", product.cr_id)
                           }
                         >
@@ -348,68 +233,14 @@ const ConfirmationRecord = () => {
         </>
       )}
 
-      {/* Upload Modal */}
-      <Modal
-        transparent={true}
-        animationType="fade"
+      <UploadImageModal
         visible={isUploadModalVisible}
-        onRequestClose={cancelUpload}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {currentWord.uploadImageFor}
-              {selectedStatus === "order"
-                ? currentWord.orderStatus
-                : currentWord.deliveryStatus}
-            </Text>
-
-            {imageUris.length > 0 ? (
-              <FlatList
-                data={imageUris}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={handleImageUpload}
-                    style={styles.haveImagePlaceholder}
-                  >
-                    <Image source={{ uri: item }} style={styles.previewImage} />
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index.toString()}
-              />
-            ) : (
-              <TouchableOpacity
-                onPress={handleImageUpload}
-                style={styles.imagePlaceholder}
-              >
-                <Text style={styles.placeholderText}>
-                  {currentWord.selectImage}
-                </Text>
-              </TouchableOpacity>
-            )}
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={confirmUpload}
-              >
-                <Text style={styles.modalButtonText}>
-                  {currentWord.confirm}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={cancelUpload}
-              >
-                <Text style={styles.cancelButtonText}>
-                  {currentWord.cancel}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setIsUploadModalVisible(false)}
+        onUploadSuccess={fetchConfirmationRecord}
+        selectedStatus={selectedStatus}
+        cr_id={cr_id}
+        user_id={user_id}
+      />
 
       {/* Display Modal */}
       {imagesLoading ? ( // Show loading indicator
@@ -484,6 +315,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     paddingBottom: 0,
     width: "100%",
+    height: "100%",
   },
   noRecordsText: {
     textAlign: "center",
@@ -649,65 +481,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-// Language translations with English and Chinese
-const words = {
-  english: {
-    none: "There are no Confirmation Records available.",
-    productStatus: "Product Status",
-    photo: "Photo",
-    productDescription: "Product Description",
-    orderStatus: "Order Status",
-    deliveryStatus: "Delivery Status",
-    quantity: "Quantity",
-    uploadImageFor: "Upload Image for ",
-    uploadedImageFor: "Uploaded Image for ",
-    selectPhoto: "Select a photo from the library or take a new photo",
-    chooseOption: "Choose an option",
-    camera: "Camera",
-    library: "Library",
-    cancel: "Cancel",
-    close: "Close",
-    error: "Error",
-    noImageSelected: "No image selected.",
-    success: "Success",
-    imageUploaded: "Image uploaded successfully!",
-    uploadFailed: "Failed to upload image.",
-    cameraPermissionError:
-      "Sorry, we need camera permissions to make this work!",
-    mediaLibraryPermissionError:
-      "Sorry, we need media library permissions to make this work!",
-    selectImage: "Select Image",
-    confirm: "Confirm",
-    imageLoadError: "An error occurred while loading images.", // New error message
-  },
-  chinese: {
-    none: "冇任何確認記錄.",
-    productStatus: "產品狀態",
-    photo: "相片",
-    productDescription: "產品描述",
-    orderStatus: "訂單狀態",
-    deliveryStatus: "送貨狀態",
-    quantity: "數量",
-    uploadImageFor: "上傳圖片以便",
-    uploadedImageFor: "上載咗嘅圖片",
-    selectPhoto: "選擇照片或拍攝新照片",
-    chooseOption: "選擇一個選項",
-    camera: "相機",
-    library: "相簿",
-    cancel: "取消",
-    close: "閂",
-    error: "錯誤",
-    noImageSelected: "未選擇圖片。",
-    success: "成功",
-    imageUploaded: "圖片上傳成功！",
-    uploadFailed: "圖片上傳失敗。",
-    cameraPermissionError: "抱歉，我們需要相機權限來使其正常工作！",
-    mediaLibraryPermissionError: "抱歉，我們需要媒體庫權限來使其正常工作！",
-    selectImage: "選擇圖片",
-    confirm: "確認",
-    imageLoadError: "加載圖片時出現錯誤。", // New error message
-  },
-};
 
 export default ConfirmationRecord;

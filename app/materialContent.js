@@ -11,72 +11,37 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useSelector, useDispatch } from "react-redux";
 import { setActiveSubTab } from "../features/tabs/tabsSlice";
+import words from "../constants/words";
 
 const MaterialContent = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const currentLanguage = useSelector((state) => state.language.language);
-
-  const words = {
-    english: {
-      candidateMaterials: "Candidate Materials",
-      confirmationRecord: "Confirmation Record",
-      variableOrder: "Variable Order",
-      milestone: "Milestone",
-      defects: "Defects",
-      contact: "Contacts",
-    },
-    chinese: {
-      candidateMaterials: "候选材料",
-      confirmationRecord: "确认记录",
-      variableOrder: "可变订单",
-      milestone: "里程碑",
-      defects: "缺陷",
-      contact: "聯絡人",
-    },
-  };
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
 
   const items = [
     {
-      label:
-        currentLanguage === "zh"
-          ? words.chinese.candidateMaterials
-          : words.english.candidateMaterials,
+      label: currentWord.candidateMaterials,
       key: "candidate_materials",
     },
     {
-      label:
-        currentLanguage === "zh"
-          ? words.chinese.confirmationRecord
-          : words.english.confirmationRecord,
+      label: currentWord.confirmationRecord,
       key: "confirmation_record",
     },
     {
-      label:
-        currentLanguage === "zh"
-          ? words.chinese.variableOrder
-          : words.english.variableOrder,
+      label: currentWord.variableOrder,
       key: "variable_order",
     },
     {
-      label:
-        currentLanguage === "zh"
-          ? words.chinese.milestone
-          : words.english.milestone,
+      label: currentWord.milestone,
       key: "milestone",
     },
     {
-      label:
-        currentLanguage === "zh"
-          ? words.chinese.defects
-          : words.english.defects,
+      label: currentWord.defects,
       key: "defects",
     },
     {
-      label:
-        currentLanguage === "zh"
-          ? words.chinese.contact
-          : words.english.contact,
+      label: currentWord.contact,
       key: "contact",
     },
   ];
@@ -114,9 +79,9 @@ const MaterialContent = () => {
 
 const styles = StyleSheet.create({
   container: {
-    height: "70%",
-    backgroundColor: "#f3eee3",
-    paddingHorizontal: 5,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingHorizontal: 10,
   },
   scrollView: {
     flexGrow: 1,

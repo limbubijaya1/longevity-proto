@@ -21,9 +21,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setProject } from "../features/project/projectSlice";
 import DateTimePicker from "react-native-ui-datepicker";
 import dayjs from "dayjs";
+import words from "../constants/words";
 
 export default function Index() {
   const currentLanguage = useSelector((state) => state.language.language);
+  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
   const dispatch = useDispatch();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -185,8 +187,6 @@ export default function Index() {
     setEndDate(new Date());
   };
 
-  const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.mainContainer}>
@@ -289,7 +289,7 @@ export default function Index() {
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>
-                  {currentWord.selectEndtDate}
+                  {currentWord.selectEndDate}
                 </Text>
                 <DateTimePicker
                   mode="single"
@@ -602,44 +602,3 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
-
-const words = {
-  english: {
-    search: "Search...",
-    selectStartDate: "Select Start Date",
-    selectEndtDate: "Select End Date",
-    addProject: "Add Project",
-    cancel: "Cancel",
-    title: "Add New Project",
-    projectName: "Project Name",
-    quoteeName: "Quotee Name",
-    quoteeMobile: "Quotee Mobile",
-    quoteeEmail: "Quotee Email",
-    companyName: "Company Name",
-    district: "District",
-    area: "Area",
-    street: "Street",
-    floorUnit: "Floor Unit",
-    startDate: "Start Date:",
-    endDate: "End Date:",
-  },
-  chinese: {
-    search: "搜尋...",
-    selectStartDate: "选择开始日期",
-    selectEndtDate: "选择结束日期",
-    addProject: "加項目",
-    cancel: "取消",
-    title: "加入新項目",
-    projectName: "項目名稱",
-    quoteeName: "引用者名稱",
-    quoteeMobile: "報價手機號碼",
-    quoteeEmail: "報價電郵",
-    companyName: "公司名稱",
-    district: "區",
-    area: "地區",
-    street: "街",
-    floorUnit: "樓層單位",
-    startDate: "開始日期：",
-    endDate: "結束日期：",
-  },
-};

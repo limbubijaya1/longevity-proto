@@ -15,6 +15,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import DateTimePicker from "react-native-ui-datepicker"; // Import the new DatePicker
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
+import words from "../constants/words";
 
 export default function Milestone() {
   const currentLanguage = useSelector((state) => state.language.language);
@@ -23,7 +24,7 @@ export default function Milestone() {
   const [startDate, setStartDate] = useState(new Date()); // Set initial date to current date
   const [endDate, setEndDate] = useState(new Date()); // Same for end date
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const activeTab = useSelector((state) => state.tabs.activeTab);
@@ -108,7 +109,7 @@ export default function Milestone() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.mainContainer}>
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -117,179 +118,190 @@ export default function Milestone() {
         />
       ) : (
         <>
-          <Text style={styles.title}>{currentWord.title}</Text>
-          <ScrollView>
-            {tasks.length === 0 ? (
-              <Text style={styles.noTasksText}>{currentWord.none} </Text>
-            ) : (
-              tasks.map((item, index) => (
-                <View key={item.tb_id} style={styles.taskContainer}>
-                  <Text style={styles.taskNumber}>{index + 1}. </Text>
-                  <View style={styles.descriptionContainer}>
-                    <Text style={styles.taskDescription}>
-                      {item.tb_description}
-                    </Text>
-                  </View>
-                  <Text style={styles.taskStatus}>
-                    {item.task_completion_status ? "Completed" : "Pending"}
-                  </Text>
-                  <View style={styles.iconContainer}>
-                    {item.task_completion_status ? (
-                      <Ionicons name="square" color="green" size={20} />
-                    ) : (
-                      <Ionicons name="triangle" color="red" size={20} />
-                    )}
-                  </View>
-                </View>
-              ))
-            )}
-          </ScrollView>
-          <View style={styles.addBtnContainer}>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setModalVisible(true)}
-            >
-              <Text style={styles.addButtonText}>{currentWord.addTask}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={resetFields}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
-
-                <Text style={styles.inputLabel}>
-                  {currentWord.taskDescription}
+          <View style={styles.container}>
+            <Text style={styles.title}>{currentWord.milestoneTitle}</Text>
+            <ScrollView>
+              {tasks.length === 0 ? (
+                <Text style={styles.noTasksText}>
+                  {currentWord.noneMilestone}{" "}
                 </Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder={currentWord.placeholder}
-                  value={taskDescription}
-                  onChangeText={setTaskDescription}
-                />
-
-                {/* Start Date */}
-                <Text style={styles.inputLabel}>{currentWord.startDate}</Text>
-                <TouchableOpacity
-                  onPress={() => setShowStartPicker(true)}
-                  style={styles.dateContainer}
-                >
-                  <Text style={styles.dateText}>{formatDate(startDate)}</Text>
-                </TouchableOpacity>
-
-                {/* End Date */}
-                <Text style={styles.inputLabel}>{currentWord.endDate}</Text>
-                <TouchableOpacity
-                  onPress={() => setShowEndPicker(true)}
-                  style={styles.dateContainer}
-                >
-                  <Text style={styles.dateText}>{formatDate(endDate)}</Text>
-                </TouchableOpacity>
-
-                {/* Start Date Picker Modal */}
-                <Modal
-                  transparent={true}
-                  animationType="fade"
-                  visible={showStartPicker}
-                  onRequestClose={() => setShowStartPicker(false)}
-                >
-                  <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>
-                        {currentWord.datePickerTitle}
+              ) : (
+                tasks.map((item, index) => (
+                  <View key={item.tb_id} style={styles.taskContainer}>
+                    <Text style={styles.taskNumber}>{index + 1}. </Text>
+                    <View style={styles.descriptionContainer}>
+                      <Text style={styles.taskDescription}>
+                        {item.tb_description}
                       </Text>
-                      <DateTimePicker
-                        mode="single"
-                        date={startDate}
-                        selectedItemColor="orange"
-                        headerButtonColor="orange"
-                        onChange={(params) => {
-                          const selectedDate = new Date(params.date);
-                          if (selectedDate) {
-                            setStartDate(selectedDate);
-                          }
-                          setShowStartPicker(false);
-                        }}
-                      />
-                      <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={() => setShowStartPicker(false)}
-                      >
-                        <Text style={styles.addButtonText}>
-                          {currentWord.cancel}
-                        </Text>
-                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.taskStatus}>
+                      {item.task_completion_status
+                        ? currentWord.completed
+                        : currentWord.pending}
+                    </Text>
+                    <View style={styles.iconContainer}>
+                      {item.task_completion_status ? (
+                        <Ionicons name="square" color="green" size={20} />
+                      ) : (
+                        <Ionicons name="triangle" color="red" size={20} />
+                      )}
                     </View>
                   </View>
-                </Modal>
+                ))
+              )}
+            </ScrollView>
+            <View style={styles.addBtnContainer}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => setModalVisible(true)}
+              >
+                <Text style={styles.addButtonText}>{currentWord.addTask}</Text>
+              </TouchableOpacity>
+            </View>
 
-                {/* End Date Picker Modal */}
-                <Modal
-                  transparent={true}
-                  animationType="fade"
-                  visible={showEndPicker}
-                  onRequestClose={() => setShowEndPicker(false)}
-                >
-                  <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>{currentWord.placeholder}</Text>
-                      <DateTimePicker
-                        mode="single"
-                        date={endDate}
-                        selectedItemColor="orange"
-                        headerButtonColor="orange"
-                        onChange={(params) => {
-                          const selectedDate = new Date(params.date);
-                          if (selectedDate) {
-                            if (selectedDate < startDate) {
-                              alert(
-                                "End date cannot be earlier than start date."
-                              );
-                            } else {
-                              setEndDate(selectedDate);
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={resetFields}
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>
+                    {currentWord.modalTitleMilestone}
+                  </Text>
+
+                  <Text style={styles.inputLabel}>
+                    {currentWord.taskDescription}
+                  </Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder={currentWord.placeholder}
+                    value={taskDescription}
+                    onChangeText={setTaskDescription}
+                    placeholderTextColor="gray"
+                  />
+
+                  {/* Start Date */}
+                  <Text style={styles.inputLabel}>{currentWord.startDate}</Text>
+                  <TouchableOpacity
+                    onPress={() => setShowStartPicker(true)}
+                    style={styles.dateContainer}
+                  >
+                    <Text style={styles.dateText}>{formatDate(startDate)}</Text>
+                  </TouchableOpacity>
+
+                  {/* End Date */}
+                  <Text style={styles.inputLabel}>{currentWord.endDate}</Text>
+                  <TouchableOpacity
+                    onPress={() => setShowEndPicker(true)}
+                    style={styles.dateContainer}
+                  >
+                    <Text style={styles.dateText}>{formatDate(endDate)}</Text>
+                  </TouchableOpacity>
+
+                  {/* Start Date Picker Modal */}
+                  <Modal
+                    transparent={true}
+                    animationType="fade"
+                    visible={showStartPicker}
+                    onRequestClose={() => setShowStartPicker(false)}
+                  >
+                    <View style={styles.modalContainer}>
+                      <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>
+                          {currentWord.selectStartDate}
+                        </Text>
+                        <DateTimePicker
+                          mode="single"
+                          date={startDate}
+                          selectedItemColor="orange"
+                          headerButtonColor="orange"
+                          onChange={(params) => {
+                            const selectedDate = new Date(params.date);
+                            if (selectedDate) {
+                              setStartDate(selectedDate);
                             }
-                          }
-                          setShowEndPicker(false);
-                        }}
-                      />
-                      <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={() => setShowEndPicker(false)}
-                      >
-                        <Text style={styles.addButtonText}>
-                          {currentWord.cancel}
-                        </Text>
-                      </TouchableOpacity>
+                            setShowStartPicker(false);
+                          }}
+                        />
+                        <TouchableOpacity
+                          style={styles.cancelButton}
+                          onPress={() => setShowStartPicker(false)}
+                        >
+                          <Text style={styles.addButtonText}>
+                            {currentWord.cancel}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
-                </Modal>
+                  </Modal>
 
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.confirmButton}
-                    onPress={handleAddTask}
+                  {/* End Date Picker Modal */}
+                  <Modal
+                    transparent={true}
+                    animationType="fade"
+                    visible={showEndPicker}
+                    onRequestClose={() => setShowEndPicker(false)}
                   >
-                    <Text style={styles.addButtonText}>
-                      {currentWord.confirm}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={resetFields}
-                  >
-                    <Text style={styles.addButtonText}>
-                      {currentWord.cancel}
-                    </Text>
-                  </TouchableOpacity>
+                    <View style={styles.modalContainer}>
+                      <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>
+                          {currentWord.selectEndDate}
+                        </Text>
+                        <DateTimePicker
+                          mode="single"
+                          date={endDate}
+                          selectedItemColor="orange"
+                          headerButtonColor="orange"
+                          onChange={(params) => {
+                            const selectedDate = new Date(params.date);
+                            if (selectedDate) {
+                              if (selectedDate < startDate) {
+                                alert(
+                                  "End date cannot be earlier than start date."
+                                );
+                              } else {
+                                setEndDate(selectedDate);
+                              }
+                            }
+                            setShowEndPicker(false);
+                          }}
+                        />
+                        <TouchableOpacity
+                          style={styles.cancelButton}
+                          onPress={() => setShowEndPicker(false)}
+                        >
+                          <Text style={styles.addButtonText}>
+                            {currentWord.cancel}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </Modal>
+
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.confirmButton}
+                      onPress={handleAddTask}
+                    >
+                      <Text style={styles.addButtonText}>
+                        {currentWord.confirm}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={resetFields}
+                    >
+                      <Text style={styles.addButtonText}>
+                        {currentWord.cancel}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-          </Modal>
+            </Modal>
+          </View>
         </>
       )}
     </View>
@@ -304,10 +316,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     width: 350,
   },
+  mainContainer: { width: "100%", height: "100%" },
   loadingIndicator: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
   },
   title: {
     fontSize: 24,
@@ -432,37 +446,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const words = {
-  english: {
-    datePickerTitle: "Select Start Date",
-    datePickerTitle1: "Select End Date",
-    placeholder: "Task Description",
-    title: "Milestone",
-    none: "There are no tasks available.",
-    addTask: "Add Task",
-    confirm: "Confirm",
-    modalTitle: "Add Task",
-    taskDescription: "Task Description:",
-    cancel: "Cancel",
-    errorNoSelect: "Invalid Selection",
-    errorNoSelect2: "Please select at least one product with a quantity.",
-    startDate: "Start Date:",
-    endDate: "End Date:",
-  },
-  chinese: {
-    datePickerTitle: "揀開始日期",
-    datePickerTitle1: "選擇結束日期",
-    placeholder: "任務描述",
-    title: "里程碑",
-    none: "冇任何任務可用.",
-    addTask: "新增任務",
-    confirm: "確認",
-    modalTitle: "新增任務",
-    taskDescription: "任務描述:",
-    cancel: "取消",
-    errorNoSelect: "無效嘅選擇",
-    errorNoSelect2: "請選擇至少一個有數量嘅產品.",
-    startDate: "開始日期：",
-    endDate: "結束日期：",
-  },
-};
+

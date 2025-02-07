@@ -13,7 +13,7 @@ import {
 import { useSelector } from "react-redux";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
-
+import words from "../constants/words";
 import { useRouter } from "expo-router";
 
 export default function Progress() {
@@ -153,7 +153,9 @@ export default function Progress() {
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>{currentWord.modalTitle}</Text>
+                <Text style={styles.modalTitle}>
+                  {currentWord.modalTitleColor}
+                </Text>
                 <View style={styles.modalTextContainer}>
                   <View style={styles.colorBlockYellow} />
                   <Text style={styles.modalText}>
@@ -179,7 +181,7 @@ export default function Progress() {
                   onPress={toggleModal}
                 >
                   <Text style={styles.closeButtonText}>
-                    {currentWord.modalClose}
+                    {currentWord.close}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -435,28 +437,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-const words = {
-  english: {
-    none: "There are no categories available.",
-    days: "Days",
-    progress: "Progress",
-    modalTitle: "Color Information",
-    modalYellow: "Yellow: Whole Project Progress",
-    modalGreen: "Green: Completed",
-    modalOrange: "Orange: Risky/Uncompleted",
-    modalGray: "Gray: Upcoming",
-    modalClose: "Close",
-  },
-  chinese: {
-    none: "冇任何類別可用",
-    days: "日",
-    progress: "進步",
-    modalTitle: "顏色資訊",
-    modalYellow: "黃色: 整個項目進度",
-    modalGreen: "綠色: 已完成",
-    modalOrange: "橙色: 有風險 / 未完成",
-    modalGray: "灰色: 即將來臨",
-    modalClose: "關閉",
-  },
-};

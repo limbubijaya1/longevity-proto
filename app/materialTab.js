@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  FlatList,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { setActiveTab } from "../features/tabs/tabsSlice";
@@ -13,39 +13,48 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 const MaterialTab = () => {
   const dispatch = useDispatch();
   const activeTab = useSelector((state) => state.tabs.activeTab);
-  const availableTabs = useSelector((state) => state.tabs.availableTabs); // Get available tabs from Redux
- 
-  const handleTabPress = (key, label) => {
+  const availableTabs = useSelector((state) => state.tabs.availableTabs);
+  const flatListRef = useRef(null);
+
+  const handleTabPress = (key, label, index) => {
     dispatch(setActiveTab({ key, label }));
+    // Scroll to the pressed tab
+    flatListRef.current.scrollToIndex({ index, animated: true });
   };
+
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity
+      key={item.key}
+      style={[styles.tab, activeTab.key === item.key && styles.activeTab]}
+      onPress={() => handleTabPress(item.key, item.label, index)}
+    >
+      <Text
+        style={[
+          styles.tabText,
+          activeTab.key === item.key && styles.activeTabText,
+        ]}
+      >
+        {item.label}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.arrowButton}>
         <MaterialIcons name="keyboard-arrow-left" size={25} color="orange" />
       </TouchableOpacity>
-      <ScrollView
+      <FlatList
+        ref={flatListRef}
+        data={availableTabs}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.key}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.tabContainer}
-      >
-        {availableTabs.map((item) => (
-          <TouchableOpacity
-            key={item.key}
-            style={[styles.tab, activeTab.key === item.key && styles.activeTab]}
-            onPress={() => handleTabPress(item.key, item.label)}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab.key === item.key && styles.activeTabText,
-              ]}
-            >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+        decelerationRate="fast"
+        scrollEnabled={true}
+      />
       <TouchableOpacity style={styles.arrowButton}>
         <MaterialIcons name="keyboard-arrow-right" size={25} color="orange" />
       </TouchableOpacity>
@@ -67,7 +76,7 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
+    justifyContent: "flex-start",
     paddingVertical: 0,
     paddingHorizontal: 0,
   },
