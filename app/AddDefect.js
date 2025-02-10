@@ -17,7 +17,7 @@ import {
 import { useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
-import { Dropdown } from "react-native-element-dropdown"; // Updated import
+import { Dropdown } from "react-native-element-dropdown";
 import words from "../constants/words";
 
 const AddDefect = ({ onUploadSuccess }) => {
