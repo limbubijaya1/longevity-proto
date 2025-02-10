@@ -17,7 +17,7 @@ import words from "../../../constants/words";
 import { useRouter } from "expo-router";
 
 export default function Progress() {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [categories, setCategories] = useState([]); // State to hold category progress
   const [project, setProject] = useState({}); // State to hold project data

@@ -22,7 +22,7 @@ const UploadModal = ({
   cr_id,
   user_id,
 }) => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
   const [imageUris, setImageUris] = useState([]);

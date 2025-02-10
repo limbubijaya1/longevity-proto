@@ -18,7 +18,7 @@ import dayjs from "dayjs";
 import words from "../../../constants/words";
 
 export default function Milestone() {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [modalVisible, setModalVisible] = useState(false);
   const [taskDescription, setTaskDescription] = useState("");

@@ -20,7 +20,7 @@ import {
 import words from "../../../constants/words";
 
 export default function ProjectCategory() {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const dispatch = useDispatch();
   const router = useRouter();
   const activeProject = useSelector((state) => state.project.project);
@@ -168,6 +168,7 @@ export default function ProjectCategory() {
               placeholder={currentWord.modalPlaceholderCategory}
               value={ccName}
               onChangeText={setCcName}
+              placeholderTextColor="gray"
             />
             <View style={styles.buttonContainer}>
               <TouchableOpacity

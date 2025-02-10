@@ -20,7 +20,7 @@ import AddDefect from "../../components/AddDefect";
 import words from "../../../constants/words";
 
 const Defects = () => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

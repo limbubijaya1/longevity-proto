@@ -22,10 +22,10 @@ export default function TopNav() {
     router.push("screens/Auth/signin");
   };
 
-  const toggleLanguage = () => {
-    const newLanguage = currentLanguage === "en" ? "zh" : "en";
-    dispatch(setLanguage(newLanguage)); // Dispatch action to set new language
+  const navigateToSettings = () => {
+    router.push("screens/Setting/settingPage");
   };
+
   return (
     <View style={styles.navBar}>
       <View style={styles.leftIcons}>
@@ -37,7 +37,7 @@ export default function TopNav() {
       </View>
       <View style={styles.rightIcons}>
         <FontAwesome5 name="bell" size={22} style={{ paddingRight: 15 }} />
-        <TouchableOpacity onPress={toggleLanguage}>
+        <TouchableOpacity onPress={navigateToSettings}>
           <Ionicons name="settings-sharp" size={22} />
         </TouchableOpacity>
       </View>

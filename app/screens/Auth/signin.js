@@ -19,7 +19,7 @@ import { setUser } from "../../../features/user/userSlice";
 import { useRouter } from "expo-router";
 
 export default function Signin() {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const router = useRouter();
   const dispatch = useDispatch();
   const [userName, setUserName] = useState("");
@@ -108,6 +108,7 @@ export default function Signin() {
                     paddingLeft: 40,
                   },
                 ]}
+                placeholderTextColor="gray"
               />
             </View>
             <View style={styles.iconContainer}>
@@ -130,6 +131,7 @@ export default function Signin() {
                 secureTextEntry
                 onSubmitEditing={handleSignIn}
                 returnKeyType="done"
+                placeholderTextColor="gray"
               />
               <AntDesign
                 name="enter"

@@ -12,7 +12,7 @@ import * as DocumentPicker from "expo-document-picker";
 import axios from "axios";
 
 const AddFloorPlan = ({ modalVisible, setModalVisible, fetchFloorPlans }) => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const project_id = useSelector((state) => state.project.project.project_id);
   const [floorPlanName, setFloorPlanName] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
@@ -75,6 +75,7 @@ const AddFloorPlan = ({ modalVisible, setModalVisible, fetchFloorPlans }) => {
           placeholder="Floor Plan Name"
           value={floorPlanName}
           onChangeText={setFloorPlanName}
+          placeholderTextColor="gray"
         />
 
         <TouchableOpacity

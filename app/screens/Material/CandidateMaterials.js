@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import words from "../../../constants/words";
 
 const ProductList = () => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [selectedProducts, setSelectedProducts] = useState({});
   const [products, setProducts] = useState([]);

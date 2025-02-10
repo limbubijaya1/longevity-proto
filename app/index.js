@@ -24,7 +24,7 @@ import dayjs from "dayjs";
 import words from "../constants/words";
 
 export default function Index() {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
   const dispatch = useDispatch();
@@ -445,7 +445,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    width: "100%",
+    padding: 20,
     backgroundColor: "#f3eee3",
   },
   mainContainer: {

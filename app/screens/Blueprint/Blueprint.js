@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PdfViewer from "../../components/PdfViewer"; // Import the PdfViewer component
 
 const Blueprint = () => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const [areas, setAreas] = useState([]);
   const [files, setFiles] = useState([]);
   const [selectedAreaId, setSelectedAreaId] = useState(null);

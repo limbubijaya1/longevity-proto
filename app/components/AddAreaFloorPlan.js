@@ -17,7 +17,7 @@ const AddAreaFloorPlan = ({
   areaId,
   fetchCurrentAreaFiles,
 }) => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const [floorPlanName, setFloorPlanName] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
   const user_id = useSelector((state) => state.user.userId);
@@ -84,6 +84,7 @@ const AddAreaFloorPlan = ({
           placeholder="Floor Plan Name"
           value={floorPlanName}
           onChangeText={setFloorPlanName}
+          placeholderTextColor="gray"
         />
 
         <TouchableOpacity

@@ -17,11 +17,11 @@ import {
 import { useSelector } from "react-redux";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
-import { Dropdown } from "react-native-element-dropdown"; // Updated import
+import { Dropdown } from "react-native-element-dropdown"; 
 import words from "../../constants/words";
 
 const AddDefect = ({ onUploadSuccess }) => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [loading, setLoading] = useState(false);
   const [isAddDefectModalVisible, setIsAddDefectModalVisible] = useState(false);

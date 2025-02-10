@@ -4,7 +4,7 @@ import { View, StyleSheet, SafeAreaView } from "react-native";
 import ProjectInformation from "../../components/projectInformation";
 import Blueprint from "./Blueprint";
 
-export default function ProjectPage() {
+export default function BlueprintPage() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.mainContainer}>

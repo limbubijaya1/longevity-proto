@@ -11,7 +11,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 const AddArea = ({ modalVisible, setModalVisible, fetchAreas }) => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const [areaDescription, setAreaDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const project_id = useSelector((state) => state.project.project.project_id);

@@ -19,7 +19,7 @@ import words from "../../../constants/words";
 import UploadImageModal from "../../components/UploadImageModal";
 
 const VariableOrder = () => {
-  const API_URL = process.env.EXPO_API_URL;
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
