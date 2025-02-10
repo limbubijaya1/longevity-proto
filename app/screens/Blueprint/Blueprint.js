@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import AddArea from "../../components/AddArea";
+import AddAreaFloorPlan from "../../components/AddAreaFloorPlan";
+import AddMainFloorPlan from "../../components/AddMainFloorPlan";
 import {
   View,
   Text,
@@ -9,22 +12,24 @@ import {
   Modal,
 } from "react-native";
 import axios from "axios";
-import { API_URL } from "@env";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PdfViewer from "../../components/PdfViewer"; // Import the PdfViewer component
 
 const Blueprint = () => {
+  const API_URL = process.env.EXPO_API_URL;
   const [areas, setAreas] = useState([]);
   const [files, setFiles] = useState([]);
+  const [selectedAreaId, setSelectedAreaId] = useState(null);
   const [selectedArea, setSelectedArea] = useState("Main");
   const [showAreaList, setShowAreaList] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [addAreaModalVisible, setAddAreaModalVisible] = useState(false);
+  const [addAreaFloorPlanModalVisible, setAddAreaFloorPlanModalVisible] =
+    useState(false);
+  const [addMainFloorPlanModalVisible, setAddMainFloorPlanModalVisible] =
+    useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPdfUri, setSelectedPdfUri] = useState(null);
   const project_id = useSelector((state) => state.project.project.project_id);
-  const floorPlan = useSelector(
-    (state) => state.project.project.floor_plan_documents
-  );
 
   // Fetch areas from API
   const fetchAreas = async () => {
@@ -38,16 +43,29 @@ const Blueprint = () => {
     }
   };
 
-  const fetchFloorPlans = () => {
-    const updatedFiles = floorPlan.map((plan) => {
-      const { floor_plan_id, extension, name } = plan;
-      return {
-        uri: `${API_URL}/main-floor-plan/${floor_plan_id}.${extension}`,
-        name: name,
-        content_type: plan.content_type,
-      };
-    });
-    setFiles(updatedFiles);
+  const fetchFloorPlans = async () => {
+    try {
+      console.log(project_id);
+      const response = await axios.get(
+        `${API_URL}/project-details/${project_id}`
+      );
+
+      // Map over the fetched floor plan documents to create updatedFiles
+      const updatedFiles = response.data.floor_plan_documents.map((plan) => {
+        const { floor_plan_id, extension, name, content_type } = plan;
+        return {
+          uri: `${API_URL}/main-floor-plan/${floor_plan_id}.${extension}`,
+          name,
+          content_type,
+        };
+      });
+
+      // Set the files state with the updatedFiles
+      setFiles(updatedFiles);
+      console.log(updatedFiles); // Log to verify the output
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const fetchCurrentAreaFiles = async (id) => {
@@ -57,7 +75,6 @@ const Blueprint = () => {
       );
 
       if (response.data.pic_details.length === 0) {
-        setErrorMessage("No active floor plans found for this area");
         setFiles([]);
       } else {
         const areaFiles = response.data.pic_details.map((item) => ({
@@ -66,21 +83,13 @@ const Blueprint = () => {
           content_type: item.content_type,
         }));
         setFiles(areaFiles);
-        setErrorMessage("");
       }
     } catch (error) {
-      if (error.response && error.response.status === 500) {
-        setErrorMessage("No active floor plans found for this area");
-      } else {
+      if (error.response && error.response.status !== 500) {
         console.error("Error fetching files:", error);
       }
       setFiles([]);
     }
-  };
-
-  const handleAddArea = () => {
-    console.log("Add Area button pressed");
-    // Logic to add area goes here (e.g., open a modal)
   };
 
   useEffect(() => {
@@ -95,14 +104,11 @@ const Blueprint = () => {
 
   return (
     <View style={styles.container}>
-      {/* Title Area */}
       <View style={styles.titleContainer}>
         <Text style={styles.title}>總施工圖</Text>
       </View>
 
-      {/* Main Content Area */}
       <View style={styles.content}>
-        {/* Left Side Navigation */}
         <View style={styles.leftSide}>
           <View
             style={[
@@ -112,34 +118,30 @@ const Blueprint = () => {
           >
             <TouchableOpacity
               onPress={() => {
-                setFiles([]); // Clear previous files
-                setErrorMessage(""); // Clear error message
-                setSelectedArea("Main"); // Set selected area to Main
-                setShowAreaList(false); // Hide area list
-                fetchFloorPlans(); // Fetch floor plans when Main is pressed
+                setFiles([]);
+                setSelectedArea("Main");
+                setShowAreaList(false);
+                fetchFloorPlans();
               }}
             >
               <Text style={styles.mainAreaBtnText}>Main</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Area Selection Button */}
           <TouchableOpacity
             style={[
               styles.dropdownButton,
               selectedArea === "Area" && styles.activeAreaItem,
             ]}
             onPress={() => {
-              setFiles([]); // Clear previous files
-              setErrorMessage(""); // Clear error message
-              setShowAreaList(!showAreaList); // Toggle area list visibility
-              setSelectedArea("Area"); // Set selected area to Area
+              setFiles([]);
+              setShowAreaList(!showAreaList);
+              setSelectedArea("Area");
             }}
           >
             <Text style={styles.dropdownButtonText}>Area</Text>
           </TouchableOpacity>
 
-          {/* Area List */}
           {showAreaList && (
             <FlatList
               data={areas}
@@ -152,6 +154,7 @@ const Blueprint = () => {
                   ]}
                   onPress={() => {
                     setSelectedArea(item.description);
+                    setSelectedAreaId(item.area_id);
                     fetchCurrentAreaFiles(item.area_id);
                   }}
                 >
@@ -161,37 +164,56 @@ const Blueprint = () => {
             />
           )}
 
-          {/* Button Container */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleAddArea}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setAddAreaModalVisible(true)}
+            >
               <Text style={styles.buttonText}>+</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Right Side PDF Display */}
         <View style={styles.pdfContainer}>
-          {errorMessage ? (
-            <Text style={styles.errorMessage}>{errorMessage}</Text>
-          ) : (
-            <FlatList
-              data={files}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
+          <FlatList
+            data={
+              selectedArea !== "Area"
+                ? [...files, { isAddAreaButton: true }]
+                : ""
+            }
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => {
+              if (item.isAddAreaButton) {
+                return (
+                  <TouchableOpacity
+                    style={styles.addAreaButtonText}
+                    onPress={() => {
+                      selectedArea != "Main"
+                        ? setAddAreaFloorPlanModalVisible(true)
+                        : setAddMainFloorPlanModalVisible(true);
+                    }}
+                  >
+                    <View style={styles.pdfIconContainer}>
+                      <Text style={styles.addAreaButtonText}>+</Text>
+                    </View>
+                    <Text style={styles.pdfItemText}>Add Floor Plan</Text>
+                  </TouchableOpacity>
+                );
+              }
+              return (
                 <TouchableOpacity onPress={() => handlePdfClick(item.uri)}>
                   <View style={styles.pdfItem}>
                     <Image source={{ uri: item.uri }} style={styles.pdfIcon} />
                     <Text>{item.name}</Text>
                   </View>
                 </TouchableOpacity>
-              )}
-              numColumns={2}
-            />
-          )}
+              );
+            }}
+            numColumns={2}
+          />
         </View>
       </View>
 
-      {/* PDF Viewer Modal */}
       <Modal visible={modalVisible} animationType="slide">
         <PdfViewer uri={selectedPdfUri} />
         <TouchableOpacity
@@ -201,6 +223,25 @@ const Blueprint = () => {
           <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
       </Modal>
+
+      <AddArea
+        modalVisible={addAreaModalVisible}
+        setModalVisible={setAddAreaModalVisible}
+        fetchAreas={fetchAreas}
+      />
+
+      <AddAreaFloorPlan
+        modalVisible={addAreaFloorPlanModalVisible}
+        setModalVisible={setAddAreaFloorPlanModalVisible}
+        areaId={selectedAreaId} // Pass the selected area ID
+        fetchCurrentAreaFiles={fetchCurrentAreaFiles}
+      />
+
+      <AddMainFloorPlan
+        modalVisible={addMainFloorPlanModalVisible}
+        setModalVisible={setAddMainFloorPlanModalVisible}
+        fetchFloorPlans={fetchFloorPlans}
+      />
     </View>
   );
 };
@@ -300,9 +341,32 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginRight: 10,
   },
+  addButtonContainer: {
+    flex: 1,
+    alignItems: "center",
+    marginBottom: 20,
+    marginRight: 10,
+  },
   pdfIcon: {
     width: 100,
     height: 100,
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  pdfIconContainer: {
+    width: 100,
+    height: 100,
+    backgroundColor: "orange",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  addAreaButtonText: {
+    fontSize: 24,
+    color: "white",
+  },
+  pdfItemText: {
+    textAlign: "center",
   },
   errorMessage: {
     textAlign: "center",

@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { API_URL } from "@env";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -18,6 +17,7 @@ import words from "../../../constants/words";
 import { useRouter } from "expo-router";
 
 export default function Progress() {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [categories, setCategories] = useState([]); // State to hold category progress
   const [project, setProject] = useState({}); // State to hold project data

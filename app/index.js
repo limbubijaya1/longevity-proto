@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_URL } from "@env";
 import TopNav from "./components/topNav";
 import LowerNav from "./components/lowerNav";
 import { useRouter } from "expo-router";
@@ -25,6 +24,7 @@ import dayjs from "dayjs";
 import words from "../constants/words";
 
 export default function Index() {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
   const dispatch = useDispatch();
@@ -155,7 +155,7 @@ export default function Index() {
         project_address: projectAddressObject, // Corrected this line
       };
       console.log(newProject);
-      const response = await axios.post("${API_URL}/add-project", newProject);
+      const response = await axios.post(`${API_URL}/add-project`, newProject);
       if (response.status === 200) {
         Alert.alert("Success", "Project added successfully!");
         fetchUserIdAndProjects();

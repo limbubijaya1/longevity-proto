@@ -16,11 +16,10 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../features/user/userSlice";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { API_URL } from "@env";
-
 SplashScreen.preventAutoHideAsync();
 
-function UserLoader({ setIsAuthenticated }) {
+function UserLoader({ onReady }) {
+  const API_URL = process.env.EXPO_API_URL;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -39,10 +38,10 @@ function UserLoader({ setIsAuthenticated }) {
 
           if (fullName && userId && companyId) {
             dispatch(setUser({ fullName, userId, companyId }));
-            setIsAuthenticated(true); // User is authenticated
+            onReady(true); // User is authenticated
           } else {
             try {
-              const userResponse = await axios.get("${API_URL}/users/me/", {
+              const userResponse = await axios.get(`${API_URL}/users/me/`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
@@ -59,34 +58,34 @@ function UserLoader({ setIsAuthenticated }) {
               await AsyncStorage.setItem("full_name", full_name);
               await AsyncStorage.setItem("user_id", user_id);
               await AsyncStorage.setItem("company_id", company_id);
-              setIsAuthenticated(true); // User is authenticated
+              onReady(true); // User is authenticated
             } catch (err) {
               console.error("Error fetching user data:", err);
-              setIsAuthenticated(false); // User not authenticated
+              onReady(false); // User not authenticated
             }
           }
         } else {
           console.log("Token expired. Clearing storage...");
           await AsyncStorage.clear();
-          setIsAuthenticated(false); // Token expired
+          onReady(false); // Token expired
         }
       } else {
         console.log("No token found. Redirecting to sign-in...");
-        setIsAuthenticated(false); // No token found
+        onReady(false); // No token found
       }
     };
 
     loadUserData();
-  }, [dispatch, setIsAuthenticated]);
+  }, [dispatch, onReady]);
 
   return null; // No UI needed for this component
 }
 
 export default function RootLayout() {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     if (loaded) {
@@ -95,12 +94,12 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null; // Show nothing until fonts are loaded
+    return null;
   }
 
   return (
     <Provider store={store}>
-      <UserLoader setIsAuthenticated={setIsAuthenticated} />
+      <UserLoader onReady={setIsAuthenticated} />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -116,7 +115,7 @@ export default function RootLayout() {
             <Stack.Screen name="screens/Material/materialSubPage" />
           </>
         ) : (
-          <Stack.Screen name="signin" />
+          <Stack.Screen name="screens/Auth/signin" />
         )}
         <Stack.Screen name="+not-found" />
       </Stack>

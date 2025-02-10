@@ -1,5 +1,4 @@
 import axios from "axios";
-import { API_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect } from "react";
 import {
@@ -22,6 +21,7 @@ import { Dropdown } from "react-native-element-dropdown"; // Updated import
 import words from "../../constants/words";
 
 const AddDefect = ({ onUploadSuccess }) => {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [loading, setLoading] = useState(false);
   const [isAddDefectModalVisible, setIsAddDefectModalVisible] = useState(false);

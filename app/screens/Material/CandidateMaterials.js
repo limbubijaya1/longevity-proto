@@ -14,11 +14,11 @@ import {
   Pressable,
 } from "react-native";
 import axios from "axios";
-import { API_URL } from "@env";
 import { useSelector } from "react-redux";
 import words from "../../../constants/words";
 
 const ProductList = () => {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [selectedProducts, setSelectedProducts] = useState({});
   const [products, setProducts] = useState([]);
@@ -115,7 +115,7 @@ const ProductList = () => {
 
       try {
         const response = await axios.post(
-          "${API_URL}/select-product",
+          `${API_URL}/select-product`,
           requestBody
         );
         if (response.status === 200) {

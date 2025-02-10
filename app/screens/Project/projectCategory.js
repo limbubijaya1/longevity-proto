@@ -2,7 +2,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import { API_URL } from "@env";
 import { useRouter } from "expo-router";
 import {
   View,
@@ -21,6 +20,7 @@ import {
 import words from "../../../constants/words";
 
 export default function ProjectCategory() {
+  const API_URL = process.env.EXPO_API_URL;
   const dispatch = useDispatch();
   const router = useRouter();
   const activeProject = useSelector((state) => state.project.project);

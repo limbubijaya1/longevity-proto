@@ -1,6 +1,5 @@
 import { useTheme } from "@react-navigation/native";
 import axios from "axios";
-import { API_URL } from "@env";
 import { jwtDecode } from "jwt-decode";
 import React, { useState } from "react";
 import {
@@ -20,6 +19,7 @@ import { setUser } from "../../../features/user/userSlice";
 import { useRouter } from "expo-router";
 
 export default function Signin() {
+  const API_URL = process.env.EXPO_API_URL;
   const router = useRouter();
   const dispatch = useDispatch();
   const [userName, setUserName] = useState("");
@@ -35,7 +35,7 @@ export default function Signin() {
 
     try {
       const response = await axios.post(
-        "${API_URL}/token",
+        `${API_URL}/token`,
         new URLSearchParams({
           grant_type: "password",
           username: userName,
@@ -57,7 +57,7 @@ export default function Signin() {
       const expirationTime = decodedToken.exp * 1000;
       await AsyncStorage.setItem("token_expiration", expirationTime.toString());
 
-      const userResponse = await axios.get("${API_URL}/users/me/", {
+      const userResponse = await axios.get(`${API_URL}/users/me/`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },

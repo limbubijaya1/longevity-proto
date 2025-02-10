@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { API_URL } from "@env";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -19,6 +18,7 @@ import dayjs from "dayjs";
 import words from "../../../constants/words";
 
 export default function Milestone() {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [modalVisible, setModalVisible] = useState(false);
   const [taskDescription, setTaskDescription] = useState("");

@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
-import { API_URL } from "@env";
 import { useSelector } from "react-redux";
 import words from "../../constants/words";
 
@@ -23,6 +22,7 @@ const UploadModal = ({
   cr_id,
   user_id,
 }) => {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const currentWord = currentLanguage === "zh" ? words.chinese : words.english;
   const [imageUris, setImageUris] = useState([]);
@@ -100,7 +100,7 @@ const UploadModal = ({
     console.log(url);
 
     try {
-      await axios.get("${API_URL}/");
+      await axios.get(`${API_URL}/`);
     } catch (error) {}
 
     try {

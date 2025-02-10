@@ -1,5 +1,4 @@
 import axios from "axios";
-import { API_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState, useEffect } from "react";
 import {
@@ -21,6 +20,7 @@ import words from "../../../constants/words";
 import UploadImageModal from "../../components/UploadImageModal";
 
 const ConfirmationRecord = () => {
+  const API_URL = process.env.EXPO_API_URL;
   const currentLanguage = useSelector((state) => state.language.language);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
